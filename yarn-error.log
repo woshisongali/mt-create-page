@@ -1,0 +1,54 @@
+Arguments: 
+  /Users/songali/.nvm/versions/node/v8.0.0/bin/node /usr/local/Cellar/yarn/1.15.2/libexec/bin/yarn.js add koa-router
+
+PATH: 
+  /Library/Frameworks/Python.framework/Versions/3.7/bin:/Users/songali/.nvm/versions/node/v8.0.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/songali/.nvm
+
+Yarn version: 
+  1.15.2
+
+Node version: 
+  8.0.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@babel%2fcli: ETIMEDOUT
+      at Timeout._onTimeout (/usr/local/Cellar/yarn/1.15.2/libexec/lib/cli.js:130201:19)
+      at ontimeout (timers.js:488:11)
+      at tryOnTimeout (timers.js:323:5)
+      at Timer.listOnTimeout (timers.js:283:5)
+
+npm manifest: 
+  {
+    "name": "mt-create-page",
+    "version": "1.0.0",
+    "description": "to create  template pages 运营后台页面构建",
+    "main": "server.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/woshisongali/mt-create-page.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/woshisongali/mt-create-page/issues"
+    },
+    "homepage": "https://github.com/woshisongali/mt-create-page#readme",
+    "devDependencies": {
+      "@babel/cli": "^7.4.4",
+      "@babel/core": "^7.4.5",
+      "@babel/preset-env": "^7.4.5",
+      "koa": "^2.7.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

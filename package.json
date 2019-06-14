@@ -1,0 +1,29 @@
+{
+  "name": "mt-create-page",
+  "version": "1.0.0",
+  "description": "to create  template pages 运营后台页面构建",
+  "bin": {
+    "mtcp": "server.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woshisongali/mt-create-page.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/woshisongali/mt-create-page/issues"
+  },
+  "homepage": "https://github.com/woshisongali/mt-create-page#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "commander": "^2.20.0",
+    "koa": "^2.7.0",
+    "koa-router": "^7.4.0"
+  }
+}
