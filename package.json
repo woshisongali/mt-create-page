@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "to create  template pages 运营后台页面构建",
   "bin": {
-    "mtcp": "server.js"
+    "mtcp": "index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

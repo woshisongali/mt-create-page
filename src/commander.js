@@ -1,4 +1,8 @@
 const program = require('commander');
+const server = require('./server');
+const fs = require('fs');
+const operaFs = require('./operaFs');
+
 function range(val) {
     return val.split('..').map(Number);
   }
@@ -12,10 +16,17 @@ function range(val) {
     return memo;
   }
    
-  function increaseVerbosity(v, total) {
+  async function increaseVerbosity(...args) {
+    let [v, total] = args;
+    console.log(args);
+    await operaFs.mkdirs(v);
+    console.log('to look me')
     return total + 1;
   }
    
+ const startServer = (val) => {
+  server.serverStart()
+ }
   program
     .version('0.1.0')
     .usage('[options] <file ...>')
@@ -25,15 +36,16 @@ function range(val) {
     .option('-l, --list <items>', 'A list', list)
     .option('-o, --optional [value]', 'An optional value')
     .option('-c, --collect [value]', 'A repeatable value', collect, [])
-    .option('-v, --verbose', 'A value that can be increased', increaseVerbosity, 0)
+    .option('-v, --verbose [value]', 'A value that can be increased', increaseVerbosity, 0)
+    .option('-s, --serparam', 'A value that can be increased', startServer, 0)
     .parse(process.argv);
    
   console.log(' int: %j', program.integer);
-  console.log(' float: %j', program.float);
-  console.log(' optional: %j', program.optional);
-  program.range = program.range || [];
-  console.log(' range: %j..%j', program.range[0], program.range[1]);
-  console.log(' list: %j', program.list);
-  console.log(' collect: %j', program.collect);
-  console.log(' verbosity: %j', program.verbose);
-  console.log(' args: %j', program.args);
+  // console.log(' float: %j', program.float);
+  // console.log(' optional: %j', program.optional);
+  // program.range = program.range || [];
+  // console.log(' range: %j..%j', program.range[0], program.range[1]);
+  // console.log(' list: %j', program.list);
+  // console.log(' collect: %j', program.collect);
+  // console.log(' verbosity: %j', program.verbose);
+  // console.log(' args: %j', program.args);
