@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+const {resolve} = require('path')
 
 const mkdir = (pos, dirArray,_callback) => {
     const len = dirArray.length;
@@ -29,7 +29,8 @@ const mkdir = (pos, dirArray,_callback) => {
     });
 }
 
-async function mkdirs(dirpath) {
+// 建立文件夹目录
+const mkdirs = (dirpath) => {
     const dirArray = dirpath.split('/');
     return new Promise((resolve, reject) => {
         fs.exists( dirpath , (exists) => {
@@ -44,6 +45,49 @@ async function mkdirs(dirpath) {
     }) 
 }
 
+const readFile = (src) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(src, function (err, data) {
+            if (err) {
+                console.error(err);
+            }
+            // console.log("异步读取: " + data.toString());
+            let filedata = data;
+            resolve(filedata);
+         });
+    });
+}
+
+const isExists = (src) => {
+    return new Promise((resolve, reject) => {
+        fs.exists(src, (exists) => {
+            if (exists) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    })
+}
+
+async function copyPage(orgin, newName) {
+    let curPath = resolve('./');
+    let checkNew = await isExists(newName);
+    let dataStr = null;
+    if (!checkNew) {
+        await mkdirs(newName);
+    } else {
+        console.log('the dirs has exist');
+    }
+    let ctrlPath = curPath +'/' + orgin + '/' + orgin + 'Ctrl.js';
+    let checkCtrlPath = await isExists(ctrlPath);
+    if (checkCtrlPath) {
+        dataStr = await readFile(checkCtrlPath);
+        console.log(dataStr);
+    }
+}
+
 module.exports = {
-    mkdirs
+    mkdirs,
+    copyPage
 }

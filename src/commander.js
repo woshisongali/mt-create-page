@@ -15,37 +15,32 @@ function range(val) {
     memo.push(val);
     return memo;
   }
-   
-  async function increaseVerbosity(...args) {
-    let [v, total] = args;
-    console.log(args);
-    await operaFs.mkdirs(v);
-    console.log('to look me')
-    return total + 1;
+
+ const copyFiles = (orgin, args) => {
+    let newName = args[0];
+    operaFs.copyPage(orgin, newName);
   }
    
  const startServer = (val) => {
   server.serverStart()
  }
-  program
-    .version('0.1.0')
-    .usage('[options] <file ...>')
-    .option('-i, --integer <n>', 'An integer argument', parseInt)
-    .option('-f, --float <n>', 'A float argument', parseFloat)
-    .option('-r, --range <a>..<b>', 'A range', range)
-    .option('-l, --list <items>', 'A list', list)
-    .option('-o, --optional [value]', 'An optional value')
-    .option('-c, --collect [value]', 'A repeatable value', collect, [])
-    .option('-v, --verbose [value]', 'A value that can be increased', increaseVerbosity, 0)
-    .option('-s, --serparam', 'A value that can be increased', startServer, 0)
-    .parse(process.argv);
-   
-  console.log(' int: %j', program.integer);
-  // console.log(' float: %j', program.float);
-  // console.log(' optional: %j', program.optional);
-  // program.range = program.range || [];
-  // console.log(' range: %j..%j', program.range[0], program.range[1]);
-  // console.log(' list: %j', program.list);
-  // console.log(' collect: %j', program.collect);
-  // console.log(' verbosity: %j', program.verbose);
-  // console.log(' args: %j', program.args);
+
+
+program
+  .version('0.1.0')
+  // .option('-c, --config <path>', 'set config path. defaults to ./deploy.conf')
+  .option('-s, --server', 'A value that can be increased', startServer, 0)
+
+program
+  .command('copy <orginDir> [newDirs...]')
+  .action(function (orginDir, newDirs) {
+    copyFiles(orginDir, newDirs);
+    // console.log('fffrmdir %s', orginDir);
+    // if (newDirs) {
+    //   newDirs.forEach(function (oDir) {
+    //     console.log('rmdir %s', oDir);
+    //   });
+    // }
+  });
+
+program.parse(process.argv);
