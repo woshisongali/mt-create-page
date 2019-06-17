@@ -153,7 +153,6 @@ async function copyPage(orgin, newName) {
             }
         }
         for (let key in newFilesSrc) {
-            console.log(key)
             await replaceWord(orginSrc[key], newFilesSrc[key]);
         }
 
