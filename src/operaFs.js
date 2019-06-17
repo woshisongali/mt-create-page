@@ -45,6 +45,17 @@ const mkdirs = (dirpath) => {
     }) 
 }
 
+const createFile = (src) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(src, '', (err) => {
+            if (err) {
+                reject(false);
+            }
+            resolve(true);
+        });
+    })
+}
+
 const readFile = (src) => {
     return new Promise((resolve, reject) => {
         fs.readFile(src, function (err, data) {
@@ -52,7 +63,7 @@ const readFile = (src) => {
                 console.error(err);
             }
             // console.log("异步读取: " + data.toString());
-            let filedata = data;
+            let filedata = data.toString();
             resolve(filedata);
          });
     });
@@ -70,22 +81,89 @@ const isExists = (src) => {
     })
 }
 
+const writeFiel = (src, data) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(src, data, 'utf8', function (err) {
+            if (err) return console.log(err);
+            resolve(true);
+       });
+    })
+}
+
+const replaceWord = (orgin, src) => {
+    return new Promise((resolve, reject) => {
+        let oldName = orgin.split('\/')[0];
+        let newName = src.split('\/')[0];
+        const namePatt = new RegExp(oldName, 'ig');
+        fs.readFile(src, 'utf8', async function (err, files) {
+            if (err) throw err;
+            const result = files.replace(namePatt, newName);
+            // console.log(result);
+            await writeFiel(src, result);
+            resolve(true);
+        })
+    })
+}
+
+const copySingle = (origin, src) => {
+    return new Promise((resolve, reject) => {
+        fs.stat(origin,function(err,stats){  //stats  该对象 包含文件属性
+            if (err) throw err;
+            if (stats.isFile()) { //如果是个文件则拷贝 
+                let  readable=fs.createReadStream(origin);//创建读取流
+                let  writable=fs.createWriteStream(src);//创建写入流
+                readable.pipe(writable);
+                resolve(true);
+            } else {
+                reject(false);
+            }
+        });
+    })
+}
+
 async function copyPage(orgin, newName) {
     let curPath = resolve('./');
     let checkNew = await isExists(newName);
-    let dataStr = null;
+    let checkOrgin = await isExists(orgin);
+    if (!checkOrgin) {
+        return;
+    }
+    let dataCtrlStr = null;
+    const newFilesSrc = {
+        tpl: newName + '/' + newName + '.html',
+        ctrl: newName + '/' + newName + 'Ctrl.js',
+        service: newName + '/' + newName + 'Service.js'
+    }
     if (!checkNew) {
         await mkdirs(newName);
+        await createFile(newFilesSrc.tpl);
+        await createFile(newFilesSrc.ctrl);
+        await createFile(newFilesSrc.service);
+        let ctrlPath = orgin + '/' + orgin + 'Ctrl.js';
+        const orginSrc = {
+            tpl: orgin + '/' + orgin + '.html',
+            ctrl: orgin + '/' + orgin + 'Ctrl.js',
+            service: orgin + '/' + orgin + 'Service.js'
+        }
+        // let checkCtrlPath = await isExists(orginSrc.tpl);
+        for (let key in newFilesSrc) {
+            let checkCtrlPath = await isExists(orginSrc[key]);
+            if (checkCtrlPath) {
+                await copySingle(orginSrc[key], newFilesSrc[key]);
+            }
+        }
+        for (let key in newFilesSrc) {
+            console.log(key)
+            await replaceWord(orginSrc[key], newFilesSrc[key]);
+        }
+
+        console.log('has done!')
     } else {
         console.log('the dirs has exist');
     }
-    let ctrlPath = curPath +'/' + orgin + '/' + orgin + 'Ctrl.js';
-    let checkCtrlPath = await isExists(ctrlPath);
-    if (checkCtrlPath) {
-        dataStr = await readFile(checkCtrlPath);
-        console.log(dataStr);
-    }
+    
 }
+
 
 module.exports = {
     mkdirs,
