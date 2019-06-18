@@ -1,3 +1,5 @@
+const htmlParse = require('./htmlParse');
+
 const  serverStart = () => {
     const Koa = require('koa');
     const Router = require('koa-router');
@@ -5,7 +7,10 @@ const  serverStart = () => {
     const app = new Koa();
     const router = new Router();
 
-    router.get('/', (ctx, next) => {
+    router.get('/', async function (ctx, next) {
+        let result = await htmlParse.toAst('./test/index.html');
+        result = JSON.stringify(result, null, 4);
+        ctx.body = result;
         console.log('start server')
     })
     app.use(router.routes())

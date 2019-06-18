@@ -6,7 +6,8 @@
     "mtcp": "index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
     "koa-router": "^7.4.0"
   },
   "dependencies": {
-    "html-parse-stringify2": "^2.0.1"
+    "html-parse-stringify2": "^2.0.1",
+    "prettier": "^1.18.2"
   }
 }

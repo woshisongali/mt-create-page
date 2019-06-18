@@ -58,12 +58,12 @@ const createFile = (src) => {
 
 const readFile = (src) => {
     return new Promise((resolve, reject) => {
-        fs.readFile(src, function (err, data) {
+        fs.readFile(src, 'utf8', function (err, data) {
             if (err) {
                 console.error(err);
             }
             // console.log("异步读取: " + data.toString());
-            let filedata = data.toString();
+            let filedata = data;
             resolve(filedata);
          });
     });
@@ -166,5 +166,7 @@ async function copyPage(orgin, newName) {
 
 module.exports = {
     mkdirs,
-    copyPage
+    copyPage,
+    readFile,
+    writeFiel
 }
