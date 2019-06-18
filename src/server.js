@@ -8,7 +8,7 @@ const  serverStart = () => {
     const router = new Router();
 
     router.get('/', async function (ctx, next) {
-        let result = await htmlParse.toAst('./test/index.html');
+        let result = await htmlParse.toAst('./test/index.html', ['./test/one.html']);
         result = JSON.stringify(result, null, 4);
         ctx.body = result;
         console.log('start server')
