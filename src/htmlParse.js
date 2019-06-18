@@ -1,6 +1,8 @@
+
 const HTML = require('html-parse-stringify2');
 const operaFs = require('./operaFs');
 const prettier = require('prettier');
+const esprima = require('esprima');
 const treeHTML = require('./treeHTML');
 
 const separatJS = (ast) => {
@@ -23,39 +25,45 @@ const replaceElem = (ast, subnew) => {
     // let objAst = JSON.parse(ast);
     let reNode = treeHTML.getNode(ast, {key: 'name', value: 'replaceTag'});
     let sepaAst = separatJS(subnew);
-    console.log(sepaAst.astHtml);
     // console.log(reNode.node);
     if (reNode.preObj) {
         let parent = reNode.preObj.parentArr;
         let index = reNode.preObj.index;
         parent.splice(index, 1, ...sepaAst.astHtml);
     }
-    // reNode.node.children = [{
-    //     "type": "text",
-    //     "content": "let me see the content is  new"
-    // }];
+    return sepaAst.astJs;
+}
+
+const getJSStr = (ast) => {
+    let node = ast[0];
+    return node.children[0].content;
 }
 
 async function toAst(src, subSrcs) {
     if (!src) {
         return
     }
+    let bodyContent = 'hahah';
     let originStr = await operaFs.readFile(src);
     let ast = HTML.parse(originStr);
     if (subSrcs && subSrcs.length > 0) {
         let substr0 = await operaFs.readFile(subSrcs[0]);
         let subAst = HTML.parse(substr0);
         // ast = treeDeal.normalizeTree(ast);
-        replaceElem(ast, subAst);
+        let astJs = replaceElem(ast, subAst);
+        const JSstr = getJSStr(astJs);
+        bodyContent = esprima.parseScript(JSstr);
+        const mainJSstr = await operaFs.readFile('./test/init.js');
+        // bodyContent = esprima.parseScript(mainJSstr);
     }
     
     // let sepaAst = separatJS(ast);
     // console.log(sepaAst.astHtml);
     let result = HTML.stringify(ast);
-    result = prettier.format(result, {parser: "html" });
+    result = prettier.format(result, {parser: "html" , printWidth: 120});
     await operaFs.writeFiel('./test/test1.html', result);
     // console.log(result);
-    return ast
+    return bodyContent
 }
 
 // toAst('./test/index.html');
