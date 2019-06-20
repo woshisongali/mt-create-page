@@ -3,7 +3,9 @@ const HTML = require('html-parse-stringify2');
 const operaFs = require('./operaFs');
 const prettier = require('prettier');
 const esprima = require('esprima');
+const escodegen = require('escodegen');
 const treeHTML = require('./treeHTML');
+const treeJS = require('./treeJS');
 
 const separatJS = (ast) => {
     let astHtml = [], astJs = [];
@@ -53,8 +55,13 @@ async function toAst(src, subSrcs) {
         let astJs = replaceElem(ast, subAst);
         const JSstr = getJSStr(astJs);
         bodyContent = esprima.parseScript(JSstr);
+        const code = escodegen.generate(bodyContent);
+        // bodyContent = code;
+        const getFunction = treeJS.getFunction(bodyContent, 'myHello');
+        console.log(getFunction);
+        await operaFs.writeFiel('./test/test1.js', code);
         const mainJSstr = await operaFs.readFile('./test/init.js');
-        // bodyContent = esprima.parseScript(mainJSstr);
+        bodyContent = esprima.parseScript(JSstr);
     }
     
     // let sepaAst = separatJS(ast);
