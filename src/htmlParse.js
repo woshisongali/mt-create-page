@@ -55,12 +55,15 @@ async function toAst(src, subSrcs) {
         let astJs = replaceElem(ast, subAst);
         const JSstr = getJSStr(astJs);
         bodyContent = esprima.parseScript(JSstr);
-        const code = escodegen.generate(bodyContent);
         // bodyContent = code;
         const getFunction = treeJS.getFunction(bodyContent, 'myHello');
         console.log(getFunction);
-        await operaFs.writeFiel('./test/test1.js', code);
         const mainJSstr = await operaFs.readFile('./test/init.js');
+        const mainJsTree = esprima.parseScript(mainJSstr);
+        const mainClass = treeJS.getClass(mainJsTree);
+        mainClass.body.push(getFunction);
+        const code = escodegen.generate(mainJsTree);
+        await operaFs.writeFiel('./test/test1.js', code);
         bodyContent = esprima.parseScript(JSstr);
     }
     
