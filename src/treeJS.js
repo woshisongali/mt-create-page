@@ -76,10 +76,13 @@ const getClass = (tree) => {
 }
 
 const getFunction = (tree, name) => {
-    return getNodeKeys(tree, {"key": {
-        "type": "Identifier",
-        "name": name
-    }});
+    return getNodeKeys(tree, {
+        "key": {
+            "type": "Identifier",
+            "name": name
+        },
+        "kind": "method"
+    });
 }
 
 module.exports = {

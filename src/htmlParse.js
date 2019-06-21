@@ -41,6 +41,11 @@ const getJSStr = (ast) => {
     return node.children[0].content;
 }
 
+const optEsp = {
+    comment: true,
+    range: true,
+    tokens: true
+};
 async function toAst(src, subSrcs) {
     if (!src) {
         return
@@ -53,18 +58,21 @@ async function toAst(src, subSrcs) {
         let subAst = HTML.parse(substr0);
         // ast = treeDeal.normalizeTree(ast);
         let astJs = replaceElem(ast, subAst);
-        const JSstr = getJSStr(astJs);
-        bodyContent = esprima.parseScript(JSstr);
+        let JSstr = getJSStr(astJs);
+        let JSTree = esprima.parseScript(JSstr, optEsp);
         // bodyContent = code;
-        const getFunction = treeJS.getFunction(bodyContent, 'myHello');
+        let getFunction = treeJS.getFunction(JSTree, 'myHello');
         console.log(getFunction);
-        const mainJSstr = await operaFs.readFile('./test/init.js');
-        const mainJsTree = esprima.parseScript(mainJSstr);
+        let mainJSstr = await operaFs.readFile('./test/init.js');
+        let mainJsTree = esprima.parseScript(mainJSstr, optEsp);
+        mainJsTree = escodegen.attachComments(mainJsTree, mainJsTree.comments, mainJsTree.tokens);
         const mainClass = treeJS.getClass(mainJsTree);
         mainClass.body.push(getFunction);
-        const code = escodegen.generate(mainJsTree);
+        const code = escodegen.generate(mainJsTree, {
+            comment: true
+        });
         await operaFs.writeFiel('./test/test1.js', code);
-        bodyContent = esprima.parseScript(JSstr);
+        bodyContent = mainJsTree;
     }
     
     // let sepaAst = separatJS(ast);
