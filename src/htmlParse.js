@@ -23,17 +23,39 @@ const separatJS = (ast) => {
 
 // 如果node有值 preObj没值则说明在最外层 
 // preObj为空的待续待续
-const replaceElem = (ast, subnew) => {
+async function replaceElem(tempSrc, subTemps) {
     // let objAst = JSON.parse(ast);
-    let reNode = treeHTML.getNode(ast, {key: 'name', value: 'replaceTag'});
-    let sepaAst = separatJS(subnew);
-    // console.log(reNode.node);
+    let tempSrcStr = await operaFs.readFile(tempSrc);
+    let tempAst = HTML.parse(tempSrcStr);
+    let sepaAst = null;
+    let arrSepaAst = [];
+    let reNode = treeHTML.getNode(tempAst, {key: 'name', value: 'replaceTag'});
+    
+    for (let i = 0, len = subTemps.length; i < len; i++) {
+        let curTemp = subTemps[i];
+        let curTempStr = await operaFs.readFile(curTemp);
+        let curTempAst = HTML.parse(curTempStr);
+        sepaAst = separatJS(curTempAst);
+        arrSepaAst.push(sepaAst);
+        // console.log(reNode.node);
+    }
+    let sepaHtml = [];
+    arrSepaAst.forEach(element => {
+        sepaHtml.push(...element.astHtml);
+    })
+    console.log('aaaaa');
     if (reNode.preObj) {
         let parent = reNode.preObj.parentArr;
         let index = reNode.preObj.index;
-        parent.splice(index, 1, ...sepaAst.astHtml);
+        // parent.splice(index, 1, ...sepaAst.astHtml);
+        parent.splice(index, 1, ...sepaHtml);
     }
-    return sepaAst.astJs;
+    // return sepaAst.astJs;
+    return {
+        tempAst,
+        astJs: sepaAst.astJs
+    }
+
 }
 
 const getJSStr = (ast) => {
@@ -46,9 +68,10 @@ const optEsp = {
     range: true,
     tokens: true
 };
-async function toAst(src, subSrcs) {
+
+async function toAstComment(src, subSrcs) {
     if (!src) {
-        return
+        return;
     }
     let bodyContent = 'hahah';
     let originStr = await operaFs.readFile(src);
@@ -81,7 +104,34 @@ async function toAst(src, subSrcs) {
     result = prettier.format(result, {parser: "html" , printWidth: 120});
     await operaFs.writeFiel('./test/test1.html', result);
     // console.log(result);
-    return bodyContent
+    return bodyContent;
+}
+
+async function toAst(src, subSrcs) {
+    if (!src) {
+        return;
+    }
+    let bodyContent = 'hahah';
+    let astResult = await replaceElem(src, subSrcs);
+    JSstr = getJSStr(astResult.astJs);
+    let JSTree = esprima.parseScript(JSstr);
+    // bodyContent = code;
+    let getFunction = treeJS.getFunction(JSTree, 'myHello');
+    let mainJSstr = await operaFs.readFile('./test/init.js');
+    let mainJsTree = esprima.parseScript(mainJSstr);
+    const mainClass = treeJS.getClass(mainJsTree);
+    mainClass.body.push(getFunction);
+    const code = escodegen.generate(mainJsTree);
+    await operaFs.writeFiel('./test/test1.js', code);
+    bodyContent = mainJsTree;
+    
+    // let sepaAst = separatJS(ast);
+    // console.log(sepaAst.astHtml);
+    let result = HTML.stringify(astResult.tempAst);
+    result = prettier.format(result, {parser: "html" , printWidth: 120});
+    await operaFs.writeFiel('./test/test1.html', result);
+    console.log(result);
+    return bodyContent;
 }
 
 // toAst('./test/index.html');
