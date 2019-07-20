@@ -7,56 +7,6 @@ const escodegen = require('escodegen');
 const treeHTML = require('./treeHTML');
 const treeJS = require('./treeJS');
 
-const separatJS = (ast) => {
-    let astHtml = [], astJs = [];
-    if (Array.isArray(ast)) {
-        ast.forEach((node) => {
-            if (node.name === 'script') {
-                astJs.push(node);
-            } else {
-                astHtml.push(node);
-            }
-        })
-    }
-    return {astHtml, astJs};
-}
-
-// 如果node有值 preObj没值则说明在最外层 
-// preObj为空的待续待续
-async function replaceElem(tempSrc, subTemps) {
-    // let objAst = JSON.parse(ast);
-    let tempSrcStr = await operaFs.readFile(tempSrc);
-    let tempAst = HTML.parse(tempSrcStr);
-    let sepaAst = null;
-    let arrSepaAst = [];
-    let reNode = treeHTML.getNode(tempAst, {key: 'name', value: 'replaceTag'});
-    
-    for (let i = 0, len = subTemps.length; i < len; i++) {
-        let curTemp = subTemps[i];
-        let curTempStr = await operaFs.readFile(curTemp);
-        let curTempAst = HTML.parse(curTempStr);
-        sepaAst = separatJS(curTempAst);
-        arrSepaAst.push(sepaAst);
-        // console.log(reNode.node);
-    }
-    let sepaHtml = [];
-    arrSepaAst.forEach(element => {
-        sepaHtml.push(...element.astHtml);
-    })
-    console.log('aaaaa');
-    if (reNode.preObj) {
-        let parent = reNode.preObj.parentArr;
-        let index = reNode.preObj.index;
-        // parent.splice(index, 1, ...sepaAst.astHtml);
-        parent.splice(index, 1, ...sepaHtml);
-    }
-    // return sepaAst.astJs;
-    return {
-        tempAst,
-        astJs: sepaAst.astJs
-    }
-
-}
 
 const getJSStr = (ast) => {
     let node = ast[0];
@@ -115,21 +65,26 @@ async function appendToMain (JSstrs, mainJSstr) {
     let mainJsTree = esprima.parseScript(mainJSstr);
     const mainClass = treeJS.getClass(mainJsTree, null, true);
     JSstrs.forEach(JSstr => {
-        let JSTree = esprima.parseScript(JSstr);
-        const jsClass = treeJS.getClass(JSTree, 'myModlue');
-        mainClass.body.push(...jsClass.body);
+        if (JSstr) {
+            let JSTree = esprima.parseScript(JSstr);
+            const jsClass = treeJS.getClass(JSTree, 'myModlue');
+            mainClass.body.push(...jsClass.body);
+        }
     });
     
     return mainJsTree;
 }
 
-async function toAst(src, subSrcs) {
+async function toAst(modConfig) {
+    let src = modConfig.tpl;
+    let children = modConfig.children;
     if (!src) {
         return;
     }
     let bodyContent = 'hahah';
-    let astResult = await replaceElem(src, subSrcs);
-    let JSstr = getJSStr(astResult.astJs);
+    let type = modConfig.type ? modConfig.type : 'base';
+    let astResult = await treeHTML.replaceMap[type](modConfig, children);
+    let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
 
     let mainJSstr = await operaFs.readFile('./test/angularInit.js');
 

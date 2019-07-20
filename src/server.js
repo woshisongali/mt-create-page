@@ -1,5 +1,5 @@
 const htmlParse = require('./htmlParse');
-
+const {Config} = require('../modules/config/list');
 const  serverStart = () => {
     const Koa = require('koa');
     const Router = require('koa-router');
@@ -8,7 +8,7 @@ const  serverStart = () => {
     const router = new Router();
 
     router.get('/', async function (ctx, next) {
-        let result = await htmlParse.toAst('./test/index.html', ['./test/one.html', './test/two.html']);
+        let result = await htmlParse.toAst(Config);
         result = JSON.stringify(result, null, 4);
         ctx.body = result;
         console.log('start server')
