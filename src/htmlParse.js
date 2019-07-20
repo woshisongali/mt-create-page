@@ -107,30 +107,46 @@ async function toAstComment(src, subSrcs) {
     return bodyContent;
 }
 
+function testGetFunction (JSTree) {
+    let getFunction = treeJS.getFunction(JSTree, 'sendRequest');
+}
+
+async function appendToMain (JSstrs, mainJSstr) {
+    let mainJsTree = esprima.parseScript(mainJSstr);
+    const mainClass = treeJS.getClass(mainJsTree, null, true);
+    JSstrs.forEach(JSstr => {
+        let JSTree = esprima.parseScript(JSstr);
+        const jsClass = treeJS.getClass(JSTree, 'myModlue');
+        mainClass.body.push(...jsClass.body);
+    });
+    
+    return mainJsTree;
+}
+
 async function toAst(src, subSrcs) {
     if (!src) {
         return;
     }
     let bodyContent = 'hahah';
     let astResult = await replaceElem(src, subSrcs);
-    JSstr = getJSStr(astResult.astJs);
-    let JSTree = esprima.parseScript(JSstr);
-    // bodyContent = code;
-    let getFunction = treeJS.getFunction(JSTree, 'myHello');
-    let mainJSstr = await operaFs.readFile('./test/init.js');
-    let mainJsTree = esprima.parseScript(mainJSstr);
-    const mainClass = treeJS.getClass(mainJsTree);
-    mainClass.body.push(getFunction);
+    let JSstr = getJSStr(astResult.astJs);
+
+    let mainJSstr = await operaFs.readFile('./test/angularInit.js');
+
+    // let mainJsTree = esprima.parseScript(mainJSstr);
+    // const mainClass = treeJS.getClass(mainJsTree, null, true);
+    // console.log(mainClass);
+    // bodyContent = mainJsTree;
+
+    let mainJsTree = await appendToMain([JSstr], mainJSstr);
     const code = escodegen.generate(mainJsTree);
     await operaFs.writeFiel('./test/test1.js', code);
     bodyContent = mainJsTree;
     
-    // let sepaAst = separatJS(ast);
-    // console.log(sepaAst.astHtml);
     let result = HTML.stringify(astResult.tempAst);
     result = prettier.format(result, {parser: "html" , printWidth: 120});
     await operaFs.writeFiel('./test/test1.html', result);
-    console.log(result);
+    // console.log(result);
     return bodyContent;
 }
 

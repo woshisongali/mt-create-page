@@ -1,5 +1,7 @@
 
 const {isObject} = require('./util');
+const {getClassParent} = require('./hooks/angluar.js')
+
 const getNode = (tree, wordObj) => {
     const {key, value} = wordObj;
     let body = tree.body;
@@ -40,7 +42,9 @@ const equalKeys = (target, keys) => {
         } else if (target[key] !== keys[key]) {
             result = false;
         }
-        break;
+        if (!result) {
+            break;
+        }
     }
     return result;
 
@@ -71,8 +75,21 @@ const getNodeKeys = (tree, wordObj) => {
     return result;
 }
 
-const getClass = (tree) => {
-    return getNode(tree, {key: 'type', value: 'ClassBody'});
+const getClass = (tree, name, isDefine) => {
+    // return getNode(tree, {key: 'type', value: 'ClassBody'});
+    if (isDefine) {
+        tree = getClassParent(tree);
+    }
+    let node = getNodeKeys(tree, {
+        "id": {
+            "type": "Identifier",
+            "name": name || "myTestONe"
+        },
+        "body": {
+            "type": "ClassBody"
+        }    
+    });
+    return node ? node.body : null;
 }
 
 const getFunction = (tree, name) => {
