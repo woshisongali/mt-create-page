@@ -1,8 +1,10 @@
+
 const HTML = require('html-parse-stringify2');
 const operaFs = require('./operaFs');
 const prettier = require('prettier');
 const esprima = require('esprima');
 const escodegen = require('escodegen');
+const {isObject} = require('./util');
 
 const normalizeTree = (originTree) => {
     let curTree = null;
@@ -37,6 +39,31 @@ const separatJS = (ast) => {
     return {astHtml, astJs};
 }
 
+const equalKeys = (target, keys) => {
+    if (!target) {
+        return false;
+    }
+    let result = true;
+    for (let key in keys) {
+        if (isObject(keys[key])) {
+            if (!target[key]) {
+                return false;
+            }
+            result = equalKeys(target[key], keys[key]);
+            if (!result) {
+                return result;
+            }
+        } else if (target[key] !== keys[key]) {
+            result = false;
+        }
+        if (!result) {
+            break;
+        }
+    }
+    return result;
+
+}
+
 /** 
  * 如果Node有值， 且preObj为null 则说明找到的节点在最外层中
 */
@@ -66,74 +93,123 @@ const getNode = (parentNode, wordObj, preObj) => {
     return node;
 }
 
+// 满足n个属性才算是匹配
+const getNodeKeys = (parentNode, wordObj, preObj) => {
+
+    let node = null;
+    let curChildren = null
+    if (!Array.isArray(parentNode) && equalKeys(parentNode, wordObj)) {
+        node = parentNode;
+        return {node, preObj};
+    } else if(Array.isArray(parentNode)) {
+        curChildren = parentNode;
+    } else {
+        curChildren = parentNode.children;
+    }
+    if (!curChildren || curChildren.length === 0) {
+        return null;
+    }
+    for (let i = 0, len = curChildren.length; i < len; i++) {
+        let outNode = getNodeKeys(curChildren[i], wordObj, {index: i, parentArr: curChildren});
+        if (outNode) {
+            // break;
+            return outNode;
+        }
+    }
+    return node;
+}
+
 const replaceMap = {
     /**
      * 
-     * @param {*} modConfig 
-     * @param {*} subTemps 
+     * @param {*} modNode 
+     * @param {*} subNodes 
      * 如果node有值 preObj没值则说明在最外层 
      * preObj为空的待续待续
      */
-    'base': async function replaceElem(modConfig, subTemps) {
-        // let objAst = JSON.parse(ast);
-        let tempSrcStr = await operaFs.readFile(modConfig.tpl);
-        let tempAst = HTML.parse(tempSrcStr);
+    'base': async function replaceElem(modNode, subNodes) {
         let sepaAst = null;
         let arrSepaAst = [];
-        let reNode = getNode(tempAst, {key: 'name', value: 'replaceTag'});
+        let reNode = getNode(modNode.nodeAst, {key: 'name', value: 'replaceTag'});
         
-        
-        for (let i = 0, len = subTemps.length; i < len; i++) {
-            let curTemp = subTemps[i];
-            let curTempStr = await operaFs.readFile(curTemp.tpl);
-            let curTempAst = HTML.parse(curTempStr);
-            sepaAst = separatJS(curTempAst);
-            arrSepaAst.push(sepaAst);
-            // console.log(reNode.node);
+        if (subNodes) {
+            for (let i = 0, len = subNodes.length; i < len; i++) {
+                let curTemp = subNodes[i];
+                // let curTempStr = await operaFs.readFile(curTemp.tpl);
+                // let curTempAst = HTML.parse(curTempStr);
+                let curTempAst = curTemp.nodeAst;
+                sepaAst = separatJS(curTempAst);
+                arrSepaAst.push(sepaAst);
+                // console.log(reNode.node);
+            }
+            let sepaHtml = [];
+            arrSepaAst.forEach(element => {
+                sepaHtml.push(...element.astHtml);
+            })
+            console.log('aaaaa mememe');
+            if (reNode.preObj) {
+                let parent = reNode.preObj.parentArr;
+                let index = reNode.preObj.index;
+                // parent.splice(index, 1, ...sepaAst.astHtml);
+                parent.splice(index, 1, ...sepaHtml);
+            }
         }
-        let sepaHtml = [];
-        arrSepaAst.forEach(element => {
-            sepaHtml.push(...element.astHtml);
-        })
-        console.log('aaaaa');
-        if (reNode.preObj) {
-            let parent = reNode.preObj.parentArr;
-            let index = reNode.preObj.index;
-            // parent.splice(index, 1, ...sepaAst.astHtml);
-            parent.splice(index, 1, ...sepaHtml);
-        }
+
         // return sepaAst.astJs;
         return {
-            tempAst,
-            astJs: sepaAst.astJs
+            tempAst: modNode.nodeAst,
+            astJs: (sepaAst && sepaAst.astJs) ? sepaAst.astJs : null
         }
     },
 
-    'table': async function replaceElem(modConfig, subTemps) {
-        // let objAst = JSON.parse(ast);
-        let tempSrcStr = await operaFs.readFile(modConfig.tpl);
-        let tempAst = HTML.parse(tempSrcStr);
+    'table': async function replaceElem(modNode, subNodes) {
+        let tempAst = modNode.nodeAst;
         let sepaAst = null;
         let arrSepaAst = [];
-        let reNode = getNode(tempAst, {key: 'name', value: 'replaceTag'});
-        let ths = null;
-        if (modConfig.names) {
-            const nameArr = modConfig.names.split(',');
-            nameArr.forEach(element => {
-                ths += `<th>${element}</th>`;
-            })
+        // let reNode = getNode(tempAst, {key: 'name', value: 'replaceTag'});
+
+        const appendCell = (reNode, cellTag) => {
+            if (!reNode) {
+                return;
+            }
+            let cells = null;
+            if (modNode.names) {
+                const nameArr = modNode.names.split(',');
+                nameArr.forEach(element => {
+                    cells += `<${cellTag}>${element}</${cellTag}>`;
+                })
+                
+            }
+            let cellsHtml;
+            if (cells) {
+                cellsHtml = HTML.parse(cells);
+            }
+    
+            if (reNode.preObj) {
+                let parent = reNode.preObj.parentArr;
+                let index = reNode.preObj.index;
+                // parent.splice(index, 1, ...sepaAst.astHtml);
+                parent.splice(index, 1, ...cellsHtml);
+            }
         }
-        let thsHtml;
-        if (ths) {
-            thsHtml = HTML.parse(ths);
-        }
-   
-        if (reNode.preObj) {
-            let parent = reNode.preObj.parentArr;
-            let index = reNode.preObj.index;
-            // parent.splice(index, 1, ...sepaAst.astHtml);
-            parent.splice(index, 1, ...thsHtml);
-        }
+
+        let rethNode = getNodeKeys(tempAst, {
+            name: 'replaceTag',
+            attrs: {
+                'autocreate-table-tag': 'th'
+            }
+        });
+        appendCell(rethNode, 'th');
+
+        let retdNode = getNodeKeys(tempAst, {
+            name: 'replaceTag',
+            attrs: {
+                'autocreate-table-tag': 'td'
+            }
+        });
+        appendCell(retdNode, 'td');
+
+
         // return sepaAst.astJs;
         return {
             tempAst,

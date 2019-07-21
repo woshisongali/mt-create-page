@@ -10,7 +10,10 @@ const treeJS = require('./treeJS');
 
 const getJSStr = (ast) => {
     let node = ast[0];
-    return node.children[0].content;
+    if (!node) {
+        return null;
+    }
+    return node.children ? node.children[0].content : null;
 }
 
 const optEsp = {
@@ -75,6 +78,27 @@ async function appendToMain (JSstrs, mainJSstr) {
     return mainJsTree;
 }
 
+async function recurAppend(node) {
+    let children = node.children;
+    if (Array.isArray(children) && children.length > 0) {
+        for (let i = 0, len = children.length; i < len; i++) {
+            let element = children[i];
+            await recurAppend(element);
+        }
+    }
+    let type = node.type ? node.type : 'base';
+    let nodeStr = await operaFs.readFile(node.tpl);
+    let nodeAst = HTML.parse(nodeStr);
+    node.nodeAst = nodeAst;
+    let astResult = await treeHTML.replaceMap[type](node, children);
+    let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
+
+    let mainJSstr = await operaFs.readFile('./test/angularInit.js');
+    let mainJsTree = await appendToMain([JSstr], mainJSstr);
+    const code = escodegen.generate(mainJsTree);
+    await operaFs.writeFiel('./test/test1.js', code);
+    return astResult;
+}
 async function toAst(modConfig) {
     let src = modConfig.tpl;
     let children = modConfig.children;
@@ -82,21 +106,24 @@ async function toAst(modConfig) {
         return;
     }
     let bodyContent = 'hahah';
-    let type = modConfig.type ? modConfig.type : 'base';
-    let astResult = await treeHTML.replaceMap[type](modConfig, children);
-    let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
 
-    let mainJSstr = await operaFs.readFile('./test/angularInit.js');
+    // let type = modConfig.type ? modConfig.type : 'base';
+    // let astResult = await treeHTML.replaceMap[type](modConfig, children);
+    // let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
 
-    // let mainJsTree = esprima.parseScript(mainJSstr);
-    // const mainClass = treeJS.getClass(mainJsTree, null, true);
-    // console.log(mainClass);
-    // bodyContent = mainJsTree;
+    // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
 
-    let mainJsTree = await appendToMain([JSstr], mainJSstr);
-    const code = escodegen.generate(mainJsTree);
-    await operaFs.writeFiel('./test/test1.js', code);
-    bodyContent = mainJsTree;
+    // // let mainJsTree = esprima.parseScript(mainJSstr);
+    // // const mainClass = treeJS.getClass(mainJsTree, null, true);
+    // // console.log(mainClass);
+    // // bodyContent = mainJsTree;
+
+    // let mainJsTree = await appendToMain([JSstr], mainJSstr);
+    // const code = escodegen.generate(mainJsTree);
+    // await operaFs.writeFiel('./test/test1.js', code);
+
+    let astResult = await recurAppend(modConfig);
+    bodyContent = 'has ok';
     
     let result = HTML.stringify(astResult.tempAst);
     result = prettier.format(result, {parser: "html" , printWidth: 120});

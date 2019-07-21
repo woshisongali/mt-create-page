@@ -4,24 +4,12 @@
                 uix-table-loader="vm.tableLoader" loader-height="300">
             <thead>
             <tr>
-                <!-- <th>MIS号</th>
-                <th>姓名</th>
-                <th>账号类型</th>
-                <th>所属岗位</th>
-                <th>岗位编码</th>
-                <th>职务类型</th>
-                <th>部门</th>
-                <th>组织结构树</th>
-                <th>操作</th> -->
-                <replaceTag>这里用来替换内容</replaceTag>
+                <replaceTag autocreate-table-tag="th">这里用来替换内容</replaceTag>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="item in vm.dataList">
-                <!-- <td>
-                    {{userData.accountName}}
-                </td> -->
-                <replaceTag>这里用来替换内容</replaceTag>                
+                <replaceTag autocreate-table-tag="td">这里用来替换内容</replaceTag>                
             </tr>
             </tbody>
         </table>
