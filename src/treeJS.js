@@ -83,7 +83,7 @@ const getClass = (tree, name, isDefine) => {
     let node = getNodeKeys(tree, {
         "id": {
             "type": "Identifier",
-            "name": name || "myTestONe"
+            "name": name || "myTestCtrl"
         },
         "body": {
             "type": "ClassBody"

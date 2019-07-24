@@ -105,6 +105,19 @@ const replaceWord = (orgin, src) => {
     })
 }
 
+const replaceWordNew = (src, oldkey, key) => {
+    return new Promise((resolve, reject) => {
+        const keyPatt = new RegExp(oldkey, 'ig');
+        fs.readFile(src, 'utf8', async function (err, files) {
+            if (err) throw err;
+            const result = files.replace(keyPatt, key);
+            // console.log(result);
+            await writeFiel(src, result);
+            resolve(true);
+        })
+    })
+}
+
 const copySingle = (origin, src) => {
     return new Promise((resolve, reject) => {
         fs.stat(origin,function(err,stats){  //stats  该对象 包含文件属性
@@ -168,5 +181,6 @@ module.exports = {
     mkdirs,
     copyPage,
     readFile,
-    writeFiel
+    writeFiel,
+    replaceWordNew
 }

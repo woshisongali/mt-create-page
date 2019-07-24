@@ -6,6 +6,7 @@ const esprima = require('esprima');
 const escodegen = require('escodegen');
 const treeHTML = require('./treeHTML');
 const treeJS = require('./treeJS');
+const pageData = require('./pageData');
 
 
 const getJSStr = (ast) => {
@@ -64,9 +65,8 @@ function testGetFunction (JSTree) {
     let getFunction = treeJS.getFunction(JSTree, 'sendRequest');
 }
 
-async function appendToMain (JSstrs, mainJSstr) {
-    let mainJsTree = esprima.parseScript(mainJSstr);
-    const mainClass = treeJS.getClass(mainJsTree, null, true);
+async function appendToMain (JSstrs, mainJsTree) {
+    const mainClass = treeJS.getClass(mainJsTree, 'myTestCtrl', true);
     JSstrs.forEach(JSstr => {
         if (JSstr) {
             let JSTree = esprima.parseScript(JSstr);
@@ -78,27 +78,114 @@ async function appendToMain (JSstrs, mainJSstr) {
     return mainJsTree;
 }
 
-async function recurAppend(node) {
+/**
+ * @description: 
+ * @param {type} 
+ * @return: 
+ * 在模板拼接之前进行变量替换
+ * 扩展 时间区间选框时， 最大最小需要处理 
+ */
+const beforeAppendHTML = (ast, paramNames) => {
+    let modelNodes = [];
+    const modalKey = 'ng-model';
+    const getNodes = (node) => {
+        let children;
+        if(Array.isArray(node)) {
+            children = node;
+        } else {
+            children = node.children;
+        }
+        if (Array.isArray(children) && children.length > 0) {
+            for (let i = 0, len = children.length; i < len; i++) {
+                let element = children[i];
+                getNodes(element);
+            }
+        }
+        let modelParam = treeHTML.getAttr(node, modalKey);
+        if (modelParam) {
+            modelNodes.push(node);
+        }
+    };
+    getNodes(ast);
+
+    const names = Array.isArray(paramNames) ? paramNames : [paramNames];
+    console.log(names);
+    for (let i = 0, len = names.length; i < len; i++) {
+        treeHTML.setAttr(modelNodes[i], 'ng-model', `vm.params.${names[i]}`);
+    }
+}
+/**
+ * @description: 
+ * @param {type} 
+ * 这里的node为config配置中的 节点信息， 此处起名容易误导
+ * @return: 
+ */
+async function recurAppend(node, mainJsTree) {
     let children = node.children;
     if (Array.isArray(children) && children.length > 0) {
         for (let i = 0, len = children.length; i < len; i++) {
             let element = children[i];
-            await recurAppend(element);
+            await recurAppend(element, mainJsTree);
         }
     }
     let type = node.type ? node.type : 'base';
     let nodeStr = await operaFs.readFile(node.tpl);
     let nodeAst = HTML.parse(nodeStr);
+    if (node.paramNames) {
+        beforeAppendHTML(nodeAst, node.paramNames);
+    }
     node.nodeAst = nodeAst;
     let astResult = await treeHTML.replaceMap[type](node, children);
     let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
-
-    let mainJSstr = await operaFs.readFile('./test/angularInit.js');
-    let mainJsTree = await appendToMain([JSstr], mainJSstr);
-    const code = escodegen.generate(mainJsTree);
-    await operaFs.writeFiel('./test/test1.js', code);
+    if (JSstr) {
+        await appendToMain([JSstr], mainJsTree);
+    }
+    
     return astResult;
 }
+
+/**
+ *
+ * 获取ng-model中的params信息
+ * @param {*} 
+ * @returns
+ */
+  const afterHTMLAst = (node) => {
+    const modalKey = 'ng-model';
+    let children;
+    if(Array.isArray(node)) {
+        children = node;
+    } else {
+        children = node.children;
+    }
+    if (Array.isArray(children) && children.length > 0) {
+        for (let i = 0, len = children.length; i < len; i++) {
+            let element = children[i];
+            afterHTMLAst(element);
+        }
+    }
+
+    let modelParam = treeHTML.getAttr(node, modalKey);
+    if (modelParam) {
+        pageData.setParams(modelParam);
+    }
+ }
+
+ /** 
+  * 最后对js html中的文件进行处理， 
+  * 包括语句替换， 单词替换
+ */
+async function hasCreated() {
+    let initParamStr = 'this.params={';
+    pageData.params.forEach(param => {
+        let name = param.split('\.');
+        initParamStr += `${name[name.length - 1]}: null,`
+    });
+    initParamStr = initParamStr.substring(0, initParamStr.length - 1);
+    initParamStr += '};';
+    await operaFs.replaceWordNew('./temples/list/index.js', 'this.params = {};', initParamStr);
+}
+
 async function toAst(modConfig) {
     let src = modConfig.tpl;
     let children = modConfig.children;
@@ -106,6 +193,7 @@ async function toAst(modConfig) {
         return;
     }
     let bodyContent = 'hahah';
+    pageData.init();
 
     // let type = modConfig.type ? modConfig.type : 'base';
     // let astResult = await treeHTML.replaceMap[type](modConfig, children);
@@ -122,12 +210,25 @@ async function toAst(modConfig) {
     // const code = escodegen.generate(mainJsTree);
     // await operaFs.writeFiel('./test/test1.js', code);
 
-    let astResult = await recurAppend(modConfig);
+    let mainJSstr = await operaFs.readFile('./pageModules/tpl/list/myTestCtrl.js');
+    let mainJsTree = esprima.parseScript(mainJSstr);
+    // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
+    // await appendToMain([JSstr], mainJsTree);
+    let astResult = await recurAppend(modConfig, mainJsTree);
     bodyContent = 'has ok';
+    const code = escodegen.generate(mainJsTree);
+    await operaFs.writeFiel('./temples/list/index.js', code);
     
+    afterHTMLAst(astResult.tempAst);
     let result = HTML.stringify(astResult.tempAst);
-    result = prettier.format(result, {parser: "html" , printWidth: 120});
-    await operaFs.writeFiel('./test/test1.html', result);
+    result = prettier.format(result, {
+        parser: "html", 
+        printWidth: 120, 
+        tabWidth: 4,
+        bracketSpacing: false
+    });
+    await operaFs.writeFiel('./temples/list/index.html', result);
+    await hasCreated();
     // console.log(result);
     return bodyContent;
 }

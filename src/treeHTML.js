@@ -119,6 +119,22 @@ const getNodeKeys = (parentNode, wordObj, preObj) => {
     return node;
 }
 
+const getAttr = (node, key) => {
+    const attrs = node.attrs || null;
+    if (!attrs) {
+        return false;
+    }
+    return attrs[key] || null
+}
+
+const setAttr = (node, key, value) => {
+    const attrs = node.attrs || null;
+    if (!attrs) {
+        return;
+    }
+    attrs[key] = value;
+}
+
 const replaceMap = {
     /**
      * 
@@ -147,7 +163,7 @@ const replaceMap = {
                 sepaHtml.push(...element.astHtml);
             })
             console.log('aaaaa mememe');
-            if (reNode.preObj) {
+            if (reNode && reNode.preObj) {
                 let parent = reNode.preObj.parentArr;
                 let index = reNode.preObj.index;
                 // parent.splice(index, 1, ...sepaAst.astHtml);
@@ -185,7 +201,7 @@ const replaceMap = {
                 cellsHtml = HTML.parse(cells);
             }
     
-            if (reNode.preObj) {
+            if (reNode && reNode.preObj) {
                 let parent = reNode.preObj.parentArr;
                 let index = reNode.preObj.index;
                 // parent.splice(index, 1, ...sepaAst.astHtml);
@@ -221,5 +237,8 @@ const replaceMap = {
 module.exports = {
     normalizeTree,
     getNode,
-    replaceMap
+    replaceMap,
+    equalKeys,
+    getAttr,
+    setAttr
 }

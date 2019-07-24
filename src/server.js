@@ -1,5 +1,5 @@
 const htmlParse = require('./htmlParse');
-const {Config} = require('../modules/config/list');
+const Config = require('../pageModules/config/list');
 const  serverStart = () => {
     const Koa = require('koa');
     const Router = require('koa-router');
