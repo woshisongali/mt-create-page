@@ -1,21 +1,21 @@
 define([
     'app',
-    './curTestServer'
+    './priceAdjApplyListServer'
 ], function (app) {
     const $inject = [
         'buServices',
         'goodsServices',
-        'curTestServer',
+        'priceAdjApplyListServer',
         'Page',
         '$uixNotify'
     ];
-    class curTestCtrl {
+    class priceAdjApplyListCtrl {
         constructor() {
             const vm = this;
-            let [buServices, goodsServices, curTestServer, Page, $uixNotify] = arguments;
+            let [buServices, goodsServices, priceAdjApplyListServer, Page, $uixNotify] = arguments;
             vm.buServices = buServices;
             vm.goodsServices = goodsServices;
-            vm.server = curTestServer;
+            vm.server = priceAdjApplyListServer;
             vm.$uixNotify = $uixNotify;
             Page.setTitle('XXXX-XXXX');
             vm.init();
@@ -24,11 +24,12 @@ define([
             console.log('ya to start');
             this.page = { pageSize: 20 };
             this.savedParams = {};
+            this.dataList = [];
             this.initQuery();
             this.getDataList(1);
         }
         initQuery() {
-            this.params={pageNo: null};
+            this.params = {};
         }
         getDataList(viaBtn) {
             viaBtn ? this.updateQueryParams() : '';
@@ -39,7 +40,7 @@ define([
                 data: {data, status}
             }) => {
                 if (status) {
-                    this.wrappageList = data.pageContent || [];
+                    this.dataList = data.pageContent || [];
                     this.totalCount = data.totalCount || null;
                     this.totalAmount = data.totalAmount;
                     this.pages = data.page;
@@ -54,8 +55,11 @@ define([
         updateQueryParams() {
             this.savedParams = Object.assign({}, this.page, this.params);
         }
+        changeBu(info) {
+            console.log(info);
+        }
     }
-    curTestCtrl.$inject = $inject;
-    app.controller('curTestCtrl', curTestCtrl);
-    return { _tpl: __inline('./curTest.html') };
+    priceAdjApplyListCtrl.$inject = $inject;
+    app.controller('priceAdjApplyListCtrl', priceAdjApplyListCtrl);
+    return { _tpl: __inline('./priceAdjApplyList.html') };
 });

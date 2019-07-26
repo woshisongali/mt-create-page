@@ -14,6 +14,9 @@ const pageData = {
     },
 
     setParams(data) {
+        if (~data.indexOf('pageNo')) {
+            return;
+        }
         if (Array.isArray(data)) {
             this.params.concat(data);
         } else {

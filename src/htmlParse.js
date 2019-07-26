@@ -14,19 +14,30 @@ const {getServerInsertFunc} = require('./hooks/angluar.js');
 
 
 const getJSStr = (ast) => {
-    let node = ast[0];
-    if (!node) {
-        return null;
-    }
-    return node.children ? node.children[0].content : null;
+    let result = [];
+    ast.forEach(element => {
+        let node = element[0];
+        if (node.children[0] && node.children[0].content) {
+            result.push(node.children[0].content);
+        }
+    })
+    
+    return result;
 }
 
 const getServerJSStr = (ast) => {
-    let node = ast[1];
-    if (!node) {
-        return null;
-    }
-    return node.children[0] ? node.children[0].content : null;
+    let result = [];
+    ast.forEach(element => {
+        let node = element[1] || null;
+        if (!node) {
+            return;
+        }
+        if (node.children[0] && node.children[0].content) {
+            result.push(node.children[0].content);
+        }
+    })
+    
+    return result;
 }
 
 const optEsp = {
@@ -148,15 +159,17 @@ async function recurAppend(node, mainJsTree, serverTree) {
     }
     node.nodeAst = nodeAst;
     let astResult = await treeHTML.replaceMap[type](node, children);
-    let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
+    let JSstr = astResult.astJs.length ? getJSStr(astResult.astJs) : null;
     if (JSstr) {
-        await appendToMain([JSstr], mainJsTree);
+        await appendToMain(JSstr, mainJsTree);
     }
 
-    let serverStr = astResult.astJs ? getServerJSStr(astResult.astJs) : null;
+    let serverStr = astResult.astJs.length ? getServerJSStr(astResult.astJs) : null;
     if (serverStr) {
-        let subSeverTree = esprima.parseScript(serverStr);
-        getServerInsertFunc(serverTree, subSeverTree)
+        serverStr.forEach(element => {
+            let subSeverTree = esprima.parseScript(element);
+            getServerInsertFunc(serverTree, subSeverTree)
+        })
     }
     
     return astResult;
@@ -194,6 +207,9 @@ async function recurAppend(node, mainJsTree, serverTree) {
   * 包括语句替换， 单词替换
  */
 async function hasCreated(filepaths) {
+    if (pageData.params.length <= 0) {
+        return;
+    }
     let initParamStr = 'this.params={';
     pageData.params.forEach(param => {
         let name = param.split('\.');

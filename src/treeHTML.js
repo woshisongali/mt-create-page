@@ -146,6 +146,7 @@ const replaceMap = {
     'base': async function replaceElem(modNode, subNodes) {
         let sepaAst = null;
         let arrSepaAst = [];
+        let arrSepaJs = [];
         let reNode = getNode(modNode.nodeAst, {key: 'name', value: 'replaceTag'});
         
         if (subNodes) {
@@ -161,6 +162,9 @@ const replaceMap = {
             let sepaHtml = [];
             arrSepaAst.forEach(element => {
                 sepaHtml.push(...element.astHtml);
+                if (element.astJs.length > 0) {
+                    arrSepaJs.push(element.astJs);
+                }
             })
             console.log('aaaaa mememe');
             if (reNode && reNode.preObj) {
@@ -174,7 +178,8 @@ const replaceMap = {
         // return sepaAst.astJs;
         return {
             tempAst: modNode.nodeAst,
-            astJs: (sepaAst && sepaAst.astJs) ? sepaAst.astJs : null
+            // astJs: (sepaAst && sepaAst.astJs) ? sepaAst.astJs : null
+            astJs: arrSepaJs
         }
     },
 
@@ -191,9 +196,20 @@ const replaceMap = {
             let cells = null;
             if (modNode.names) {
                 const nameArr = modNode.names.split(',');
-                nameArr.forEach(element => {
-                    cells += `<${cellTag}>${element}</${cellTag}>`;
-                })
+                if (cellTag === 'th') {
+                    nameArr.forEach(element => {
+                        cells += `<${cellTag}>${element}</${cellTag}>`;
+                    })
+                } else if (cellTag === 'td') {
+                    valueArr = modNode.nameValues ? modNode.nameValues.split(',') : [];
+
+                    nameArr.forEach((element, index) => {
+                        valueArr[index] ? cells += `<${cellTag}>{{item.${valueArr[index]}}}</${cellTag}>`
+                            : cells += `<${cellTag}>{{item}}</${cellTag}>`;
+                        // cells += `<${cellTag}>${element}</${cellTag}>`;
+                    })
+                }
+               
                 
             }
             let cellsHtml;
@@ -229,7 +245,7 @@ const replaceMap = {
         // return sepaAst.astJs;
         return {
             tempAst,
-            astJs: null
+            astJs: []
         }
     }
 };
