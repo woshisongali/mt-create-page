@@ -10,6 +10,25 @@ const getClassParent = (tree) => {
     return null;
 }
 
+// 找到server文件下函数的插入点
+const getServerInsertFunc = (tree, subTree) => {
+    const theArg = tree.body[0].expression.arguments;
+    let funcBody;
+    for (let index = 0, len = theArg.length; index < len; index++) {
+        const element = theArg[index];
+        if (element.body) {
+           funcBody = element.body.body;
+        }
+    }
+    if (funcBody) {
+        let funcs = subTree.body
+        funcs.forEach(element => {
+            // funcBody.unshift(element);
+            funcBody.splice(2, 0, element);
+        });
+    }
+}
 module.exports = {
-    getClassParent
+    getClassParent,
+    getServerInsertFunc
 }

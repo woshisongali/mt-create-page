@@ -1,0 +1,91 @@
+<div ng-controller="curTestCtrl as vm">
+    <div class="bg-light lter b-b wrapper-md"><h1 class="m-n font-thin h3">XXXXXXXXXX</h1></div>
+    <div class="wrapper-md no-padding">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form name="form">
+                    <div class="form-group col-md-3">
+                        <label>发起人mis号:</label>
+                        <input class="form-control input-sm" type="text" ng-model="vm.params.inputMis" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>审核时间</label>
+                        <div class="row">
+                            <span class="break">--</span>
+                            <uix-datepicker
+                                class="col-md-6"
+                                ng-model="vm.params.startTime"
+                                show-time="false"
+                                size="sm"
+                                format="vm.dateFormat.ymd"
+                                max-date="vm.params.endAuditTime"
+                            ></uix-datepicker>
+                            <uix-datepicker
+                                class="col-md-6"
+                                min-date="vm.params.beginAuditTime"
+                                ng-model="vm.params.endTime"
+                                show-time="false"
+                                size="sm"
+                                format="vm.dateFormat.ymd"
+                            ></uix-datepicker>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>事业部</label>
+                        <uix-select ng-model="vm.params.bu">
+                            <uix-select-match>{{ $select.selected.buName }}</uix-select-match>
+                            <uix-select-choices repeat="item in vm.buList | filter:$select.search">
+                                <span>{{::item.buName}}</span>
+                            </uix-select-choices>
+                        </uix-select>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label>售卖区域</label>
+                            <uix-select ng-model="vm.params.salesGrid">
+                                <uix-select-match>{{ $select.selected.saleAreaName }}</uix-select-match>
+                                <uix-select-choices repeat="item in vm.salesAreaList | filter:$select.search">
+                                    <span>{{ item.saleAreaName }}</span>
+                                </uix-select-choices>
+                            </uix-select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper-md no-padding">
+        <div class="panel panel-default">
+            <div class="panel-body cargo-info-container">
+                <div class="scroll-x">
+                    <table
+                        class="table b-t b-light m-b-none uix-table"
+                        uix-table-loader="vm.tableLoader"
+                        loader-height="300"
+                    >
+                        <thead>
+                            <tr>
+                                <th>MIS号</th>
+                                <th>账号类型</th>
+                                <th>所属岗位</th>
+                                <th>职务类型</th>
+                                <th>部门</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in vm.dataList">
+                                <td>MIS号</td>
+                                <td>账号类型</td>
+                                <td>所属岗位</td>
+                                <td>职务类型</td>
+                                <td>部门</td>
+                                <td>操作</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

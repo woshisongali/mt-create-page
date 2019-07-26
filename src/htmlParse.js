@@ -1,5 +1,8 @@
 
 const HTML = require('html-parse-stringify2');
+const gulp = require('gulp');
+const gulpReplace = require('./util/gulpReplace');
+// const gulpPrefixer = require('./util/gulpPrefixer.js');
 const operaFs = require('./operaFs');
 const prettier = require('prettier');
 const esprima = require('esprima');
@@ -7,6 +10,7 @@ const escodegen = require('escodegen');
 const treeHTML = require('./treeHTML');
 const treeJS = require('./treeJS');
 const pageData = require('./pageData');
+const {getServerInsertFunc} = require('./hooks/angluar.js');
 
 
 const getJSStr = (ast) => {
@@ -15,6 +19,14 @@ const getJSStr = (ast) => {
         return null;
     }
     return node.children ? node.children[0].content : null;
+}
+
+const getServerJSStr = (ast) => {
+    let node = ast[1];
+    if (!node) {
+        return null;
+    }
+    return node.children[0] ? node.children[0].content : null;
 }
 
 const optEsp = {
@@ -120,12 +132,12 @@ const beforeAppendHTML = (ast, paramNames) => {
  * 这里的node为config配置中的 节点信息， 此处起名容易误导
  * @return: 
  */
-async function recurAppend(node, mainJsTree) {
+async function recurAppend(node, mainJsTree, serverTree) {
     let children = node.children;
     if (Array.isArray(children) && children.length > 0) {
         for (let i = 0, len = children.length; i < len; i++) {
             let element = children[i];
-            await recurAppend(element, mainJsTree);
+            await recurAppend(element, mainJsTree, serverTree);
         }
     }
     let type = node.type ? node.type : 'base';
@@ -139,6 +151,12 @@ async function recurAppend(node, mainJsTree) {
     let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
     if (JSstr) {
         await appendToMain([JSstr], mainJsTree);
+    }
+
+    let serverStr = astResult.astJs ? getServerJSStr(astResult.astJs) : null;
+    if (serverStr) {
+        let subSeverTree = esprima.parseScript(serverStr);
+        getServerInsertFunc(serverTree, subSeverTree)
     }
     
     return astResult;
@@ -175,7 +193,7 @@ async function recurAppend(node, mainJsTree) {
   * 最后对js html中的文件进行处理， 
   * 包括语句替换， 单词替换
  */
-async function hasCreated() {
+async function hasCreated(filepaths) {
     let initParamStr = 'this.params={';
     pageData.params.forEach(param => {
         let name = param.split('\.');
@@ -183,7 +201,7 @@ async function hasCreated() {
     });
     initParamStr = initParamStr.substring(0, initParamStr.length - 1);
     initParamStr += '};';
-    await operaFs.replaceWordNew('./temples/list/index.js', 'this.params = {};', initParamStr);
+    await operaFs.replaceWordNew(filepaths.ctrl, 'this.params = {};', initParamStr);
 }
 
 async function toAst(modConfig) {
@@ -193,31 +211,23 @@ async function toAst(modConfig) {
         return;
     }
     let bodyContent = 'hahah';
-    pageData.init();
+    pageData.init({fileName: modConfig.fileName});
 
-    // let type = modConfig.type ? modConfig.type : 'base';
-    // let astResult = await treeHTML.replaceMap[type](modConfig, children);
-    // let JSstr = astResult.astJs ? getJSStr(astResult.astJs) : null;
-
-    // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
-
-    // // let mainJsTree = esprima.parseScript(mainJSstr);
-    // // const mainClass = treeJS.getClass(mainJsTree, null, true);
-    // // console.log(mainClass);
-    // // bodyContent = mainJsTree;
-
-    // let mainJsTree = await appendToMain([JSstr], mainJSstr);
-    // const code = escodegen.generate(mainJsTree);
-    // await operaFs.writeFiel('./test/test1.js', code);
 
     let mainJSstr = await operaFs.readFile('./pageModules/tpl/list/myTestCtrl.js');
     let mainJsTree = esprima.parseScript(mainJSstr);
+    let serverJStr = await operaFs.readFile('./pageModules/tpl/list/myTestServer.js');
+    let serverJSTree = esprima.parseScript(serverJStr);
     // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
     // await appendToMain([JSstr], mainJsTree);
-    let astResult = await recurAppend(modConfig, mainJsTree);
+    let astResult = await recurAppend(modConfig, mainJsTree, serverJSTree);
     bodyContent = 'has ok';
+
+    let fileName = pageData.fileName;
     const code = escodegen.generate(mainJsTree);
-    await operaFs.writeFiel('./temples/list/index.js', code);
+    await operaFs.writeFiel(`./temples/list/${fileName}Ctrl.js`, code);
+    const serverCode = escodegen.generate(serverJSTree);
+    await operaFs.writeFiel(`./temples/list/${fileName}Server.js`, serverCode);
     
     afterHTMLAst(astResult.tempAst);
     let result = HTML.stringify(astResult.tempAst);
@@ -227,8 +237,30 @@ async function toAst(modConfig) {
         tabWidth: 4,
         bracketSpacing: false
     });
-    await operaFs.writeFiel('./temples/list/index.html', result);
-    await hasCreated();
+    await operaFs.writeFiel(`./temples/list/${fileName}.html`, result);
+    let filepaths = {
+        ctrl: `./temples/list/${fileName}Ctrl.js`, 
+        server: `./temples/list/${fileName}Server.js`,
+        html: `./temples/list/${fileName}.html`
+    };
+    await hasCreated(filepaths);
+
+    // gulp.task('default', ['copyFile']);
+    function defaultTask(done) {
+    // place code for your default task here
+        console.log('Hello World!============');
+        for (let key in filepaths) {
+            if (filepaths.hasOwnProperty(key)) {
+                gulp.src(filepaths[key])
+                .pipe(gulpReplace('myTest', fileName))
+                .pipe(gulp.dest(`./build/${fileName}/`))
+            }
+        }
+        done();
+    }
+    gulp.task('default', defaultTask);
+    gulp.run();
+
     // console.log(result);
     return bodyContent;
 }
