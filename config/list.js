@@ -74,7 +74,7 @@ const CofingList = {
 }
 
 configList2 = {
-    tpl: './pageModules/tpl/list/myTest.html',
+    tpl: './pageModules/outerNoTitle.html',
     out: {
         origin: './temples/list/index.js'
     },

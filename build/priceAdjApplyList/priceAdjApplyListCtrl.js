@@ -17,7 +17,7 @@ define([
             vm.goodsServices = goodsServices;
             vm.server = priceAdjApplyListServer;
             vm.$uixNotify = $uixNotify;
-            Page.setTitle('XXXX-XXXX');
+            Page.setTitle('调价申请-价格管理');
             vm.init();
         }
         init() {
