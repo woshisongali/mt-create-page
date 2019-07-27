@@ -100,4 +100,55 @@ configList2 = {
     ]
 }
 
-module.exports = configList2;
+const CofingList3 = {
+    tpl: './pageModules/tpl/list/myTest.html',
+    out: {
+        origin: './temples/list/index.js'
+    },
+    fileName: 'myApplyPriceList',
+    children: [
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/form.html',
+                    children: [
+                        {
+                            tpl: './pageModules/pubComp/buUnit.html'
+                        },
+                        {
+                            tpl: './pageModules/inputs/select.html',
+                            selectKey: 'applyStaus'
+                        },
+                        {
+                            tpl: './pageModules/inputs/select.html',
+                            // selectKey: 'adjType'
+                        },
+                        {
+                            tpl: './pageModules/inputs/datepickerGroup.html',
+                            paramNames: ['startTime', 'endTime']
+                        }
+                    ]
+                },
+                {
+                    tpl: './pageModules/searchBtns.html'
+                }
+            ]
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/table.html', 
+                    type: 'table',
+                    names: '审批单号,事业部,提交时间,调价类型,审核单状态,审核人,操作'
+                },
+                {
+                    tpl: './pageModules/page.html'
+                }
+            ]
+        }
+    ]
+}
+
+module.exports = CofingList3;

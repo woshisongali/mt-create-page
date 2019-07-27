@@ -1,4 +1,6 @@
 // define模式下的angluar文件， 找的class父层对应的节点
+const pageData = require('../pageData');
+const {firstCharCase} = require('../util');
 const getClassParent = (tree) => {
     const theArg = tree.body[0].expression.arguments;
     for (let index = 0, len = theArg.length; index < len; index++) {
@@ -28,7 +30,43 @@ const getServerInsertFunc = (tree, subTree) => {
         });
     }
 }
+
+// 组装之前涉及到节点属性需要变更的地方
+const SELECTKEYS = [
+    {
+        key: 'selectVal',
+        after: 'Val'
+    },
+    {
+        key: 'selectList',
+        after: 'List'
+    },
+    {
+       key: 'getSelectList',
+       before: 'get',
+       after: 'List'
+    }
+];
+const beforeParseHooks = {
+    'select': (str, key, auto) => {
+        let uuid = pageData.getSelectUUid();
+        SELECTKEYS.forEach(element => {
+            let reg = new RegExp(element.key, 'g');
+            let curKey = element.before ? element.before + firstCharCase(key) : key;
+            curKey = `${curKey}${element.after}`
+            if (auto) {
+                str = str.replace(reg, curKey + uuid);
+            } else {
+                str = str.replace(reg, curKey);
+            }
+            console.log(str);
+        })
+        return str
+    }
+}
+
 module.exports = {
     getClassParent,
-    getServerInsertFunc
+    getServerInsertFunc,
+    beforeParseHooks
 }

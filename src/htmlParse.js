@@ -10,7 +10,7 @@ const escodegen = require('escodegen');
 const treeHTML = require('./treeHTML');
 const treeJS = require('./treeJS');
 const pageData = require('./pageData');
-const {getServerInsertFunc} = require('./hooks/angluar.js');
+const {getServerInsertFunc, beforeParseHooks} = require('./hooks/angluar.js');
 
 
 const getJSStr = (ast) => {
@@ -102,6 +102,22 @@ async function appendToMain (JSstrs, mainJsTree) {
 }
 
 /**
+ * 语法树解析之前对文档做一些出来
+ * @description: 
+ * @param {type} 
+ * @return: 
+ */
+const beforeParse = (str, node) => {
+    let selectKey = node.selectKey || null;
+    if (~str.indexOf('auto-create="select"')) {
+        let autoCreate = selectKey ? false : true;
+        let curKey = selectKey ? selectKey : 'select'
+        str = beforeParseHooks['select'](str, curKey, autoCreate);
+    }
+    return str;
+}
+
+/**
  * @description: 
  * @param {type} 
  * @return: 
@@ -153,6 +169,7 @@ async function recurAppend(node, mainJsTree, serverTree) {
     }
     let type = node.type ? node.type : 'base';
     let nodeStr = await operaFs.readFile(node.tpl);
+    nodeStr = beforeParse(nodeStr, node);
     let nodeAst = HTML.parse(nodeStr);
     if (node.paramNames) {
         beforeAppendHTML(nodeAst, node.paramNames);
