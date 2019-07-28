@@ -5,6 +5,7 @@ const gulpReplace = require('../util/gulpReplace');
 const operaFs = require('../operaFs');
 const prettier = require('prettier');
 const esprima = require('esprima');
+const estraverse = require('estraverse');
 const escodegen = require('escodegen');
 const treeHTML = require('../treeHTML');
 const treeJS = require('../treeJS');
@@ -53,7 +54,19 @@ async function appendToMain(JSstrs, mainJsTree) {
     JSstrs.forEach(JSstr => {
         if (JSstr) {
             let JSTree = esprima.parseScript(JSstr);
-            const jsClass = treeJS.getClass(JSTree, 'myModlue');
+            let initNode = null;
+            let newTree = estraverse.replace(JSTree, {
+                enter: function (node, parent) {
+                    if (node.type == 'MethodDefinition' && node.key.name == 'init') {
+                        initNode = node;
+                        return this.remove();
+                    }
+                }
+            })
+            if (initNode) {
+                pageData.setInitFuncs(initNode);
+            }
+            const jsClass = treeJS.getClass(newTree, 'myModlue');
             mainClass.body.push(...jsClass.body);
         }
     });
@@ -62,12 +75,39 @@ async function appendToMain(JSstrs, mainJsTree) {
 }
 
 
+const setTitle = (node, titlestr) => {
+    let autostr = treeHTML.getAttr(node, 'auto-create');
+    if (autostr === 'title') {
+        node.children[0].content = titlestr;
+    }
+}
 
-
-
+const createParamsAst = () => {
+    let params = pageData.params;
+    let str = '';
+    if (params.length > 0) {
+        str = `function setParams() {
+            this.params = {`
+        params.forEach((param, index) => {
+            if (typeof param === 'object') {
+                str +=`${param.name}: ${param.value}`
+            } else {
+                str += `${param}: null`
+            }
+            if (index < params.length -1) {
+                str +=`,`;
+            }
+        }); 
+        str += `};
+        }`
+    }
+    return str ? esprima.parseScript(str) : null;
+}
 
 class pageList {
-    constructor(config) {}
+    constructor(config) {
+        this.configNode = null;
+    }
     /**
      * 语法树解析之前对文档做一些出来
      * @description:
@@ -111,13 +151,18 @@ class pageList {
             if (modelParam) {
                 modelNodes.push(node);
             }
+            if (this.configNode.title) {
+                setTitle(node, this.configNode.title);
+            }
+            
         };
         getNodes(ast);
 
-        const names = Array.isArray(paramNames) ? paramNames : [paramNames];
-        console.log(names);
-        for (let i = 0, len = names.length; i < len; i++) {
-            treeHTML.setAttr(modelNodes[i], 'ng-model', `vm.params.${names[i]}`);
+        if (paramNames) {
+            const names = Array.isArray(paramNames) ? paramNames : [paramNames];
+            for (let i = 0, len = names.length; i < len; i++) {
+                treeHTML.setAttr(modelNodes[i], 'ng-model', `vm.params.${names[i]}`);
+            }
         }
     }
        /**
@@ -125,6 +170,7 @@ class pageList {
      * 包括语句替换， 单词替换
      */
     async hasCreated(filepaths) {
+        return;
         if (pageData.params.length <= 0) {
             return;
         }
@@ -160,7 +206,54 @@ class pageList {
 
         let modelParam = treeHTML.getAttr(node, modalKey);
         if (modelParam) {
-            pageData.setParams(modelParam);
+            let strArr = modelParam.split('.');
+            modelParam = strArr[strArr.length - 1];
+            if (node.type === 'tag' && node.name === 'uix-select') {
+                let paramObj = {
+                    name: modelParam,
+                    value: modelParam.split('V')[0] + 'List[0]'
+                }
+                pageData.setParams(paramObj);
+            } else {
+                pageData.setParams(modelParam);
+            }
+        }
+    }
+
+    afterJSAst(ast) {
+        let funcs = pageData.getInitFuncs();
+        let initNode = null;
+        let newBody = []
+        estraverse.traverse(ast, {
+            enter: function (node, parent) {
+                if (node.type == 'MethodDefinition' && node.key.name == 'init') {
+                    initNode = node;
+                    return estraverse.VisitorOption.Skip;
+                }
+            }
+        });
+        if (initNode) {
+            newBody = initNode.value.body.body;
+        }
+        funcs.forEach(node => {
+            let subBody = node.value.body.body;
+            newBody.unshift(...subBody);
+        })
+
+        let queryNode = null;
+        estraverse.traverse(ast, {
+            enter: function (node, parent) {
+                if (node.type == 'MethodDefinition' && node.key.name == 'initQuery') {
+                    queryNode = node;
+                    return estraverse.VisitorOption.Skip;
+                }
+            }
+        });
+
+        if (queryNode) {
+            let paramAst = createParamsAst();
+            let newBody = paramAst.body[0].body.body;
+            queryNode.value.body.body = newBody;
         }
     }
     
@@ -178,11 +271,12 @@ class pageList {
                 await this.recurAppend(element, mainJsTree, serverTree);
             }
         }
+        this.configNode = node;
         let type = node.type ? node.type : 'base';
         let nodeStr = await operaFs.readFile(node.tpl);
         nodeStr = this.beforeParse(nodeStr, node);
         let nodeAst = HTML.parse(nodeStr);
-        if (node.paramNames) {
+        if (node.paramNames || node.title) {
             this.beforeAppendHTML(nodeAst, node.paramNames);
         }
         node.nodeAst = nodeAst;
@@ -219,14 +313,15 @@ class pageList {
         // await appendToMain([JSstr], mainJsTree);
         let astResult = await this.recurAppend(modConfig, mainJsTree, serverJSTree);
         bodyContent = 'has ok';
+        this.afterHTMLAst(astResult.tempAst);
 
         let fileName = pageData.fileName;
+        this.afterJSAst(mainJsTree);
         const code = escodegen.generate(mainJsTree);
         await operaFs.writeFiel(`./temples/list/${fileName}Ctrl.js`, code);
         const serverCode = escodegen.generate(serverJSTree);
         await operaFs.writeFiel(`./temples/list/${fileName}Server.js`, serverCode);
 
-        this.afterHTMLAst(astResult.tempAst);
         let result = HTML.stringify(astResult.tempAst);
         result = prettier.format(result, {
             parser: 'html',
@@ -245,7 +340,6 @@ class pageList {
         // gulp.task('default', ['copyFile']);
         function defaultTask(done) {
             // place code for your default task here
-            console.log('Hello World!============');
             for (let key in filepaths) {
                 if (filepaths.hasOwnProperty(key)) {
                     gulp.src(filepaths[key])

@@ -118,7 +118,8 @@ const CofingList3 = {
                         },
                         {
                             tpl: './pageModules/inputs/select.html',
-                            selectKey: 'applyStaus'
+                            selectKey: 'applyStaus',
+                            title: '审核单状态'
                         },
                         {
                             tpl: './pageModules/inputs/select.html',

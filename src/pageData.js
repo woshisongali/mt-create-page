@@ -9,6 +9,7 @@ const pageData = {
             }
         }
         this.initSelect();
+        this.initFuncs = [];
     },
     setOutData(out) {
         this.out = out;
@@ -21,7 +22,8 @@ const pageData = {
         return this.selectUUid++;
     },
     setParams(data) {
-        if (~data.indexOf('pageNo')) {
+        let isObj = typeof data === 'object';
+        if (!isObj && ~data.indexOf('pageNo')) {
             return;
         }
         if (Array.isArray(data)) {
@@ -29,6 +31,12 @@ const pageData = {
         } else {
             this.params.push(data);
         }
+    },
+    setInitFuncs(func) {
+        this.initFuncs.push(func)
+    },
+    getInitFuncs() {
+        return this.initFuncs;
     }
 };
 

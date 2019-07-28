@@ -59,7 +59,6 @@ const beforeParseHooks = {
             } else {
                 str = str.replace(reg, curKey);
             }
-            console.log(str);
         })
         return str
     }

@@ -143,7 +143,7 @@ const replaceMap = {
      * 如果node有值 preObj没值则说明在最外层 
      * preObj为空的待续待续
      */
-    'base': async function replaceElem(modNode, subNodes) {
+    'base': async function replaceElemBase(modNode, subNodes) {
         let sepaAst = null;
         let arrSepaAst = [];
         let arrSepaJs = [];
@@ -183,7 +183,7 @@ const replaceMap = {
         }
     },
 
-    'table': async function replaceElem(modNode, subNodes) {
+    'table': async function replaceElemTable(modNode, subNodes) {
         let tempAst = modNode.nodeAst;
         let sepaAst = null;
         let arrSepaAst = [];

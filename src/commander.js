@@ -35,10 +35,8 @@ program
   .command('copy <orginDir> [newDirs...]')
   .action(function (orginDir, newDirs) {
     copyFiles(orginDir, newDirs);
-    // console.log('fffrmdir %s', orginDir);
     // if (newDirs) {
     //   newDirs.forEach(function (oDir) {
-    //     console.log('rmdir %s', oDir);
     //   });
     // }
   });
