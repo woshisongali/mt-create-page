@@ -1,5 +1,6 @@
 const fs = require('fs');
-const {resolve} = require('path')
+const fsFile = require('file-system');
+const {resolvePath} = require('path')
 
 const mkdir = (pos, dirArray,_callback) => {
     const len = dirArray.length;
@@ -83,10 +84,14 @@ const isExists = (src) => {
 
 const writeFiel = (src, data) => {
     return new Promise((resolve, reject) => {
-        fs.writeFile(src, data, 'utf8', function (err) {
-            if (err) return console.log(err);
+    //     fs.writeFile(src, data, 'utf8', function (err) {
+    //         if (err) return console.log(err);
+    //         resolve(true);
+    //    });
+        // console.log('resolve   : ' +  process.cwd() + src.substring(1));
+        fsFile.writeFile(src, data, function(err) {
             resolve(true);
-       });
+        })
     })
 }
 

@@ -12,8 +12,8 @@ const getClassParent = (tree) => {
     return null;
 }
 
-// 找到server文件下函数的插入点
-const getServerInsertFunc = (tree, subTree) => {
+// 找到service文件下函数的插入点
+const getserviceInsertFunc = (tree, subTree) => {
     const theArg = tree.body[0].expression.arguments;
     let funcBody;
     for (let index = 0, len = theArg.length; index < len; index++) {
@@ -66,6 +66,6 @@ const beforeParseHooks = {
 
 module.exports = {
     getClassParent,
-    getServerInsertFunc,
+    getserviceInsertFunc,
     beforeParseHooks
 }

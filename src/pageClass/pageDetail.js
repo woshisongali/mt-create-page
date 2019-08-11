@@ -11,100 +11,23 @@ const treeHTML = require('../treeHTML');
 const treeJS = require('../treeJS');
 const pageData = require('../pageData');
 const { getserviceInsertFunc, beforeParseHooks } = require('../hooks/angluar.js');
+const {
+    getJSStr,
+    getserviceJSStr,
+    appendToMain,
+    createParamsAst,
+    setTitle
+} = require('./base.js')
 
-const getJSStr = ast => {
-    let result = [];
-    ast.forEach(element => {
-        let node = element[0];
-        if (node.children[0] && node.children[0].content) {
-            result.push(node.children[0].content);
-        }
-    });
-
-    return result;
-};
-
-const getserviceJSStr = ast => {
-    let result = [];
-    ast.forEach(element => {
-        let node = element[1] || null;
-        if (!node) {
-            return;
-        }
-        if (node.children[0] && node.children[0].content) {
-            result.push(node.children[0].content);
-        }
-    });
-
-    return result;
-};
-
-const optEsp = {
-    comment: true,
-    range: true,
-    tokens: true
-};
-
-function testGetFunction(JSTree) {
-    let getFunction = treeJS.getFunction(JSTree, 'sendRequest');
+const CONFIG_PATH = {
+    sourFiles: {
+        ctrl: './pageModules/tpl/detail/myTestCtrl.js',
+        service: './pageModules/tpl/detail/myTestService.js',
+        css: null
+    },
+    outPath: './temples/detail/'
 }
-
-async function appendToMain(JSstrs, mainJsTree) {
-    const mainClass = treeJS.getClass(mainJsTree, 'myTestCtrl', true);
-    JSstrs.forEach(JSstr => {
-        if (JSstr) {
-            let JSTree = esprima.parseScript(JSstr);
-            let initNode = null;
-            let newTree = estraverse.replace(JSTree, {
-                enter: function (node, parent) {
-                    if (node.type == 'MethodDefinition' && node.key.name == 'init') {
-                        initNode = node;
-                        return this.remove();
-                    }
-                }
-            })
-            if (initNode) {
-                pageData.setInitFuncs(initNode);
-            }
-            const jsClass = treeJS.getClass(newTree, 'myModlue');
-            mainClass.body.push(...jsClass.body);
-        }
-    });
-
-    return mainJsTree;
-}
-
-
-const setTitle = (node, titlestr) => {
-    let autostr = treeHTML.getAttr(node, 'auto-create');
-    if (autostr === 'title') {
-        node.children[0].content = titlestr;
-    }
-}
-
-const createParamsAst = () => {
-    let params = pageData.params;
-    let str = '';
-    if (params.length > 0) {
-        str = `function setParams() {
-            this.params = {`
-        params.forEach((param, index) => {
-            if (typeof param === 'object') {
-                str +=`${param.name}: this.${param.value}`
-            } else {
-                str += `${param}: null`
-            }
-            if (index < params.length -1) {
-                str +=`,`;
-            }
-        }); 
-        str += `};
-        }`
-    }
-    return str ? esprima.parseScript(str) : null;
-}
-
-class pageList {
+class pageDetail {
     constructor(config) {
         this.configNode = null;
     }
@@ -170,18 +93,7 @@ class pageList {
      * 包括语句替换， 单词替换
      */
     async hasCreated(filepaths) {
-        return;
-        if (pageData.params.length <= 0) {
-            return;
-        }
-        let initParamStr = 'this.params={';
-        pageData.params.forEach(param => {
-            let name = param.split('.');
-            initParamStr += `${name[name.length - 1]}: null,`;
-        });
-        initParamStr = initParamStr.substring(0, initParamStr.length - 1);
-        initParamStr += '};';
-        await operaFs.replaceWordNew(filepaths.ctrl, 'this.params = {};', initParamStr);
+        
     }
     /**
      *
@@ -190,37 +102,7 @@ class pageList {
      * @returns
      */
      afterHTMLAst(node) {
-        const modalKey = 'ng-model';
-        let children;
-        if (Array.isArray(node)) {
-            children = node;
-        } else {
-            children = node.children;
-        }
-        if (Array.isArray(children) && children.length > 0) {
-            for (let i = 0, len = children.length; i < len; i++) {
-                let element = children[i];
-                this.afterHTMLAst(element);
-            }
-        }
-
-        let modelParam = treeHTML.getAttr(node, modalKey);
-        if (modelParam) {
-            let strArr = modelParam.split('.');
-            modelParam = strArr[strArr.length - 1];
-            if (node.type === 'tag' && node.name === 'uix-select') {
-                let modelSplit = modelParam.split('Val');
-                let value = modelSplit[1] ? `${modelSplit[0]}List${modelSplit[1]}[0]`
-                        : `${modelSplit[0]}List[0]`
-                let paramObj = {
-                    name: modelParam,
-                    value: value
-                }
-                pageData.setParams(paramObj);
-            } else {
-                pageData.setParams(modelParam);
-            }
-        }
+        
     }
 
     afterJSAst(ast) {
@@ -307,10 +189,18 @@ class pageList {
         }
         let bodyContent = 'hahah';
         pageData.init({ fileName: modConfig.fileName });
+        let fileName = pageData.fileName;
 
-        let mainJSstr = await operaFs.readFile('./pageModules/tpl/list/myTestCtrl.js');
+        const sourceFiles = CONFIG_PATH.sourFiles;
+        const outPath = CONFIG_PATH.outPath;
+        let filepaths = {
+            ctrl: `${outPath}${fileName}Ctrl.js`,
+            service: `${outPath}${fileName}Service.js`,
+            html: `${outPath}${fileName}.html`
+        };
+        let mainJSstr = await operaFs.readFile(sourceFiles.ctrl);
         let mainJsTree = esprima.parseScript(mainJSstr);
-        let serviceJStr = await operaFs.readFile('./pageModules/tpl/list/myTestService.js');
+        let serviceJStr = await operaFs.readFile(sourceFiles.service);
         let serviceJSTree = esprima.parseScript(serviceJStr);
         // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
         // await appendToMain([JSstr], mainJsTree);
@@ -318,14 +208,13 @@ class pageList {
         bodyContent = 'has ok';
         this.afterHTMLAst(astResult.tempAst);
 
-        let fileName = pageData.fileName;
         this.afterJSAst(mainJsTree);
         const code = escodegen.generate(mainJsTree);
-        await operaFs.writeFiel(`./temples/list/${fileName}Ctrl.js`, code);
+        await operaFs.writeFiel(filepaths.ctrl, code);
         const serviceCode = escodegen.generate(serviceJSTree);
-        await operaFs.writeFiel(`./temples/list/${fileName}Service.js`, serviceCode);
-        const cssStr = await operaFs.readFile('./pageModules/tpl/list/myTest.css');
-        await operaFs.writeFiel(`./temples/list/${fileName}.css`, cssStr);
+        await operaFs.writeFiel(filepaths.service, serviceCode);
+        // const cssStr = await operaFs.readFile('./pageModules/tpl/list/myTest.css');
+        // await operaFs.writeFiel(`./temples/list/${fileName}.css`, cssStr);
 
         let result = HTML.stringify(astResult.tempAst);
         result = prettier.format(result, {
@@ -334,13 +223,8 @@ class pageList {
             tabWidth: 4,
             bracketSpacing: false
         });
-        await operaFs.writeFiel(`./temples/list/${fileName}.html`, result);
-        let filepaths = {
-            ctrl: `./temples/list/${fileName}Ctrl.js`,
-            service: `./temples/list/${fileName}Service.js`,
-            html: `./temples/list/${fileName}.html`, 
-            cssStr: `./temples/list/${fileName}.css`
-        };
+        await operaFs.writeFiel(filepaths.html, result);
+        
         await this.hasCreated(filepaths);
 
         // gulp.task('default', ['copyFile']);
@@ -353,7 +237,6 @@ class pageList {
                         .pipe(gulp.dest(`./build/${fileName}/`));
                 }
             }
-            console.log('hshshshsh')
             done();
         }
         gulp.task('default', defaultTask);
@@ -364,4 +247,4 @@ class pageList {
     }
 }
 // toAst('./test/index.html');
-module.exports = pageList;
+module.exports = pageDetail;

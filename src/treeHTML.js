@@ -166,7 +166,6 @@ const replaceMap = {
                     arrSepaJs.push(element.astJs);
                 }
             })
-            console.log('aaaaa mememe');
             if (reNode && reNode.preObj) {
                 let parent = reNode.preObj.parentArr;
                 let index = reNode.preObj.index;

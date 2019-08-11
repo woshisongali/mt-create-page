@@ -122,12 +122,13 @@ const CofingList3 = {
                             title: '审核单状态'
                         },
                         {
-                            tpl: './pageModules/inputs/select.html',
-                            // selectKey: 'adjType'
-                        },
-                        {
                             tpl: './pageModules/inputs/datepickerGroup.html',
                             paramNames: ['startTime', 'endTime']
+                        },
+                        {
+                            tpl: './pageModules/inputs/select.html',
+                            selectKey: 'adjType',
+                            title: '调价类型'
                         }
                     ]
                 },
@@ -152,4 +153,266 @@ const CofingList3 = {
     ]
 }
 
-module.exports = CofingList3;
+const configModal1 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'adjFailModal',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '售卖区域,销售单元编码,商品名称,新单价,失败原因'
+        },
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '客户ID,客户名称,失败原因'
+        },
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '销售单元编码,商品名称,新单价,失败原因'
+        }
+    ]
+}
+
+const configDetail1 = {
+    tpl: './pageModules/tpl/detail/myTest.html',
+    pageType: 'detail',
+    fileName: 'adjApplyDetail',
+    children: [
+        {
+            tpl: './pageModules/form.html',
+            children: []
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/singleTable.html', 
+                    type: 'table',
+                    names: '客户ID,客户名称,操作'
+                },
+            ]
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/table.html', 
+                    type: 'table',
+                    names: '序号,商品信息,规格名称,售卖区域,原单价（元）/毛利率,采购价（元）,新单价（元）,新毛利率（%）,操作'
+                },
+            ]
+        }
+        
+    ]
+}
+
+const CofingList5 = {
+    tpl: './pageModules/tpl/list/myTest.html',
+    out: {
+        origin: './temples/list/index.js'
+    },
+    fileName: 'priceMagSearchList',
+    children: [
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/form.html',
+                    children: [
+                        {
+                            tpl: './pageModules/pubComp/buUnit.html'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'spuCode',
+                            title:'品号'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'skuCode',
+                            title:'包装规格编码'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'csuCode',
+                            title:'销售单元编码'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'spuName',
+                            title:'商品名称'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/brand.html'
+                        },
+                        {
+                            tpl: './pageModules/inputs/select.html',
+                            selectKey: 'allStatus',
+                            title: '售卖状态'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/spuType.html'
+                        },
+                        {
+                            tpl: './pageModules/inputs/select.html',
+                            selectKey: 'salePattern',
+                            title: '售卖模式'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/categories.html'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/saleArea.html'
+                        }
+                    ]
+                },
+                {
+                    tpl: './pageModules/searchBtns.html'
+                }
+            ]
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/table.html', 
+                    type: 'table',
+                    names: '销售单元编码,商品信息,规格名称,售卖区域,售卖状态,采购价,销售定价 (元),促销价 (元),品号,包装规格编码,事业部,后台类目,操作'
+                },
+                {
+                    tpl: './pageModules/page.html'
+                }
+            ]
+        }
+    ]
+}
+
+const CofingList6 = {
+    tpl: './pageModules/tpl/list/myTest.html',
+    out: {
+        origin: './temples/list/index.js'
+    },
+    fileName: 'goodsList',
+    children: [
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/form.html',
+                    children: [
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'spuName',
+                            title:'商品名称'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'spuCode',
+                            title:'品号'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'skuCode',
+                            title:'包装规格编码'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'csuCode',
+                            title:'销售单元编码'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/brand.html'
+                        },
+                        {
+                            tpl: './pageModules/pubComp/categories.html'
+                        }
+                    ]
+                },
+                {
+                    tpl: './pageModules/searchBtns.html'
+                }
+            ]
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/table.html', 
+                    type: 'table',
+                    names: '销售单元编码,商品信息,规格名称,售卖区域,售卖状态,采购价,销售定价 (元),促销价 (元),品号,包装规格编码,事业部,后台类目,操作'
+                },
+                {
+                    tpl: './pageModules/page.html'
+                }
+            ]
+        }
+    ]
+}
+
+const configModal2 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'addCustoms',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '全选,客户ID,客户名称'
+        }
+    ]
+}
+const configModa3 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'batchFailGoods',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '销售单元编码,商品名称,失败原因,操作时间'
+        }
+    ]
+}
+
+const configModa4 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'batchFailGoods',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '销售单元编码,商品名称,失败原因,操作时间'
+        }
+    ]
+}
+
+const configModa5 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'excelCustomers',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '客户ID,客户名称'
+        }
+    ]
+}
+
+const configModa6 = {
+    tpl: './pageModules/tpl/modalTpl/myTest.html',
+    pageType: 'modal',
+    fileName: 'excelGoods',
+    children: [
+        {
+            tpl: './pageModules/singleTable.html', 
+            type: 'table',
+            names: '销售单元编码,商品信息,签约价(元),毛利率,提醒'
+        }
+    ]
+}
+module.exports = configModa6;
