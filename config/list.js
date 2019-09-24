@@ -214,7 +214,7 @@ const CofingList5 = {
     out: {
         origin: './temples/list/index.js'
     },
-    fileName: 'priceMagSearchList',
+    fileName: 'priceMagSearchListTest',
     children: [
         {
             tpl: './pageModules/wrapperPanel.html',
@@ -415,4 +415,42 @@ const configModa6 = {
         }
     ]
 }
-module.exports = configModa6;
+const CofingList8 = {
+    tpl: './pageModules/tpl/list/myTest.html',
+    out: {
+        origin: './temples/list/index.js'
+    },
+    fileName: 'priceMagSearchListTest',
+    children: [
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/form.html',
+                    children: [
+                        {
+                            tpl: './pageModules/pubComp/saleArea.html'
+                        }
+                    ]
+                },
+                {
+                    tpl: './pageModules/searchBtns.html'
+                }
+            ]
+        },
+        {
+            tpl: './pageModules/wrapperPanel.html',
+            children: [
+                {
+                    tpl: './pageModules/table.html', 
+                    type: 'table',
+                    names: '审批单号,事业部,提交时间,调价类型,审核单状态,审核人,操作'
+                },
+                {
+                    tpl: './pageModules/page.html'
+                }
+            ]
+        }
+    ]
+}
+module.exports = CofingList8;
