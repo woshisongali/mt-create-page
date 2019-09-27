@@ -1,0 +1,63 @@
+<div class="form-group col-md-3">
+    <label>售卖区域</label>
+    <uix-select ng-model="vm.params.salesArea">
+        <uix-select-match>{{ $select.selected.saleAreaName }}</uix-select-match>
+        <uix-select-choices repeat="item in vm.salesAreaList | filter:$select.search">
+            <span>{{ item.saleAreaName }}</span>
+        </uix-select-choices>
+    </uix-select>
+</div>
+<script>
+    class myModlue {
+        init() {
+            this.salesAreaList = [];
+            this.getSalesAreaList({buId: 310100});
+        }
+        // 获取售卖区域信息的接口
+        getSalesAreaList(buInfo) {
+            const SELLGRIDSTATUS = {
+                PRE_OPEN: '待开启',
+                OPEN: '已开启'
+            };
+            this.service.getSalesAreaList({
+                buId: buInfo.buId,
+                sellGridStatusList: ['OPEN', 'PRE_OPEN']
+            }).then(({data: {data, status}}) => {
+                if (status) {
+                    let openAreaList = data.filter((item) => {
+                        return item.sellGridStatus === 'OPEN';
+                    });
+                    let preOpenAreaList = data.filter((item) => {
+                        return item.sellGridStatus === 'PRE_OPEN';
+                    });
+                    this.salesAreaList = openAreaList.concat(preOpenAreaList);
+                    this.salesAreaList = this.salesAreaList.map((item) => {
+                        return {
+                            saleAreaName: `${item.sellGridName} (${item.id}) (${SELLGRIDSTATUS[item.sellGridStatus]})`,
+                            value: item.id
+                        };
+                    });
+                    this.salesAreaList.unshift({saleAreaName: '全部'});
+                    if (this.$stateParams.salesGridId) {
+                        this.params.salesArea = this.salesAreaList.find(
+                            item => item.value === +this.$stateParams.salesGridId
+                        );
+                    }
+                    else {
+                        this.params.salesArea = this.salesAreaList[0];
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+<script>
+    const getSalesAreaList = params => {
+        return service.$http({
+            method: 'get',
+            url: basePath + '/grid/sellGrid/r/listSellGridSimpleInfo',
+            params
+        })
+    }
+</script>

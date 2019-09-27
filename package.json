@@ -38,6 +38,9 @@
     "escodegen": "^1.11.1",
     "esprima": "^4.0.1",
     "html-parse-stringify2": "^2.0.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-static": "^5.0.0",
+    "koa2-cors": "^2.0.6",
     "prettier": "^1.18.2"
   }
 }

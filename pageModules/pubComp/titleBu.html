@@ -1,0 +1,12 @@
+<div class="bg-light lter b-b wrapper-md module-title">
+    <h1 class="page-title">调价申请</h1>
+    <uix-bu-city-selector bu="vm.currentBu" hide-sub="true" on-bu-change="vm.changeBu"/>
+</div>
+<script>
+        class myModlue {
+            // value值改变时钩子函数
+            changeBu(info) {
+                console.log(info);
+            }
+        }
+</script>

@@ -1,4 +1,5 @@
 
+const estraverse = require('estraverse');
 const {isObject} = require('./util');
 const {getClassParent} = require('./hooks/angluar.js')
 
@@ -102,8 +103,52 @@ const getFunction = (tree, name) => {
     });
 }
 
+// 给一个对象新增属性时返回的结构类型
+const getObjectPropty = (name) => {
+    return {
+        "type": "Property",
+        "key": {
+            "type": "Identifier",
+            "name": name
+        },
+        "computed": false,
+        "value": {
+            "type": "Identifier",
+            "name": name
+        },
+        "kind": "init",
+        "method": false,
+        "shorthand": true
+    }
+}
+
+const getReturnStatement = (serTree) => {
+    let returnNode = null;
+    let returnStatement = null;
+    estraverse.traverse(serTree, {
+        enter: function (node, parent) {
+            if (node.type == 'FunctionDeclaration' && node.id.name == 'service') {
+                returnNode = node;
+                return estraverse.VisitorOption.Skip;
+            }
+        }
+    });
+    if (returnNode) {
+        estraverse.traverse(returnNode, {
+            enter: function (node, parent) {
+                if (node.type == 'ReturnStatement') {
+                    returnStatement = node;
+                    return estraverse.VisitorOption.Skip;
+                }
+            }
+        });
+    }
+    return returnStatement;
+}
 module.exports = {
     getNode,
     getClass,
-    getFunction
+    getFunction,
+    getObjectPropty,
+    getReturnStatement
 }

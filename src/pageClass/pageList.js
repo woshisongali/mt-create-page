@@ -10,7 +10,7 @@ const escodegen = require('escodegen');
 const treeHTML = require('../treeHTML');
 const treeJS = require('../treeJS');
 const pageData = require('../pageData');
-const { getserviceInsertFunc, beforeParseHooks } = require('../hooks/angluar.js');
+const { getserviceInsertFunc, beforeParseHooks, serviceReturnProp } = require('../hooks/angluar.js');
 
 const getJSStr = ast => {
     let result = [];
@@ -290,10 +290,16 @@ class pageList {
         }
 
         let serviceStr = astResult.astJs.length ? getserviceJSStr(astResult.astJs) : null;
+        let returnStatement = treeJS.getReturnStatement(serviceTree);
+
         if (serviceStr) {
             serviceStr.forEach(element => {
                 let subSeverTree = esprima.parseScript(element);
                 getserviceInsertFunc(serviceTree, subSeverTree);
+                let returnProps = serviceReturnProp(serviceTree, subSeverTree);
+                if (returnStatement) {
+                    returnStatement.argument.properties.push(...returnProps);
+                }
             });
         }
 
@@ -343,6 +349,7 @@ class pageList {
         };
         await this.hasCreated(filepaths);
 
+        let outPath = modConfig.outFilePath ? modConfig.outFilePath : pageData.defaultOutPath;
         // gulp.task('default', ['copyFile']);
         function defaultTask(done) {
             // place code for your default task here
@@ -350,10 +357,10 @@ class pageList {
                 if (filepaths.hasOwnProperty(key)) {
                     gulp.src(filepaths[key])
                         .pipe(gulpReplace('myTest', fileName))
-                        .pipe(gulp.dest(`./build/${fileName}/`));
+                        .pipe(gulp.dest(`${outPath}${fileName}/`));
                 }
             }
-            console.log('hshshshsh')
+            console.log('i doddd')
             done();
         }
         gulp.task('default', defaultTask);

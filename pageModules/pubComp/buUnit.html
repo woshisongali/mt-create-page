@@ -1,0 +1,28 @@
+<div class="form-group col-md-3">
+    <label>事业部</label>
+    <uix-select ng-model="vm.params.bu">
+        <uix-select-match>{{$select.selected.buName}}</uix-select-match>
+        <uix-select-choices repeat="item in vm.buList | filter:$select.search">
+            <span>{{::item.buName}}</span>
+        </uix-select-choices>
+    </uix-select>
+</div>
+
+<script>
+     class myModlue {
+        init() {
+            this.buList = [];
+            this.getBuList();
+        } 
+        getBuList() {
+            this.buList = [{buName: '全部', buId: null}];
+            this.buServices.getBuList().then(({data: {data, status}}) => {
+                if (status) {
+                    this.buList = this.buList.concat(data || []);
+                    this.params.bu = this.buList[0];
+                    console.log('has get the data');
+                }
+            });
+        }
+    }
+</script>

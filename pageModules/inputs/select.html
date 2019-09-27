@@ -1,0 +1,37 @@
+<div class="form-group col-md-3">
+    <label auto-create="title">事业部</label>
+    <uix-select auto-create="select" ng-model="vm.params.selectVal">
+        <uix-select-match>{{ $select.selected.name }}</uix-select-match>
+        <uix-select-choices repeat="item in vm.selectList | filter:$select.search">
+        <span>{{::item.name}}</span>
+        </uix-select-choices>
+    </uix-select>
+</div>
+
+<script>
+    class myModlue {
+        init() {
+            this.selectList = [];
+            this.getSelectList();
+        }
+        getSelectList() {
+            // this.selectList = [];
+            return this.server.getSelectList().then(({data: {data, status}}) => {
+                if (status) {
+                    this.selectList = this.buList.concat(data || []);
+                    this.params.selectVal = this.selectList[0];
+                    console.log('has get the data');
+                }
+            });
+        }
+    }
+</script>
+<script>
+    const getSelectList  = params => {
+        return server.$http({
+            method: 'get',
+            url: basePath + '/oas/self/r/afterSales/customer/info',
+            params
+        });
+    };
+</script>

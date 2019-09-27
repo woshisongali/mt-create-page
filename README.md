@@ -3,6 +3,10 @@ to create  template pages
 运营后台页面构建
 ### 启动命令 npm run start
 
+### 打开页面地址
+http://127.0.0.1:3000/dist/index.html
+
+
 ### 解析问题
 
 1.esprima 解析'...'有问题， 不能正确识别 该扩展符

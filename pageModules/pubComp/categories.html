@@ -1,0 +1,27 @@
+<div class="form-group col-md-9">
+    <label>后台分类</label>
+    <uix-categories size="sm" cate-list="vm.params.cateList"></uix-categories>
+</div>
+<script>
+    class myModlue {
+        init() {
+            this.initCateList();
+        }
+        initCateList() {
+            this.params.cateList = {
+                cat1: {
+                    id: '',
+                    name: '全部'
+                },
+                cat2: {
+                    id: '',
+                    name: '全部'
+                },
+                cat3: {
+                    id: '',
+                    name: '全部'
+                }
+            };
+        }
+    }
+</script>

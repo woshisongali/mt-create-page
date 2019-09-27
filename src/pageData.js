@@ -1,4 +1,5 @@
 const pageData = {
+    defaultOutPath: `./build/`,
     params: [],
     init(opts) {
         this.params = [];

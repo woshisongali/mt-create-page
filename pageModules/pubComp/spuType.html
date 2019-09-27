@@ -1,0 +1,26 @@
+<div class="form-group col-md-3">
+    <label>商品类型</label>
+    <uix-select ng-model="vm.params.spuType" ng-change="vm.searchPriceListHandler()">
+        <uix-select-match>{{$select.selected.value}}</uix-select-match>
+        <uix-select-choices
+                repeat="item in vm.spuTypeList | filter:$select.search">
+            <span>{{item.value}}</span>
+        </uix-select-choices>
+    </uix-select>
+</div>
+
+<script>
+    class myModlue {
+        init() {
+            this.spuTypeList = [];
+        }
+        // 获取商品类型
+        getSpuTypeList() {
+            this.goodsServices.getSpuTypeList().then(({data: {data, status}}) => {
+                if (status) {
+                    this.spuTypeList = data;
+                }
+            });
+        }
+    }
+</script>

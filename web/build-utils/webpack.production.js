@@ -35,6 +35,9 @@ module.exports = () => ({
       }
     }
   },
+  output: {
+    publicPath: 'http://127.0.0.1:3000/dist',
+  },
   module: {
     rules: [
       {

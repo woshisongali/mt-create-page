@@ -1,0 +1,17 @@
+<div class="panel-body cargo-info-container">
+    <div class="scroll-x">
+        <table class="table b-t b-light m-b-none uix-table"
+                uix-table-loader="vm.tableLoader" loader-height="300">
+            <thead>
+            <tr>
+                <replaceTag autocreate-table-tag="th">这里用来替换内容</replaceTag>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in vm.dataList">
+                <replaceTag autocreate-table-tag="td">这里用来替换内容</replaceTag>                
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

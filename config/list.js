@@ -430,6 +430,11 @@ const CofingList8 = {
                     children: [
                         {
                             tpl: './pageModules/pubComp/saleArea.html'
+                        },
+                        {
+                            tpl: './pageModules/inputs/input.html',
+                            paramNames: 'csuCode',
+                            title:'销售单元编码'
                         }
                     ]
                 },

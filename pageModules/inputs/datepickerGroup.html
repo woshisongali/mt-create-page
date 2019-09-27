@@ -1,0 +1,11 @@
+<div class="form-group col-md-6">
+    <label>审核时间</label>
+    <div class="row">
+        <span class="break">--</span>
+        <uix-datepicker class="col-md-6" ng-model="vm.params.beginAuditTime" show-time="false"
+                        size="sm" format="vm.dateFormat.ymd" max-date="vm.params.endAuditTime"></uix-datepicker>
+        <uix-datepicker class="col-md-6" min-date="vm.params.beginAuditTime"
+                        ng-model="vm.params.endAuditTime" show-time="false"
+                        size="sm" format="vm.dateFormat.ymd"></uix-datepicker>
+    </div>
+</div>

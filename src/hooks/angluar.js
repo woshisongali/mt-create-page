@@ -1,6 +1,7 @@
 // define模式下的angluar文件， 找的class父层对应的节点
 const pageData = require('../pageData');
 const {firstCharCase} = require('../util');
+
 const getClassParent = (tree) => {
     const theArg = tree.body[0].expression.arguments;
     for (let index = 0, len = theArg.length; index < len; index++) {
@@ -29,6 +30,36 @@ const getserviceInsertFunc = (tree, subTree) => {
             funcBody.splice(2, 0, element);
         });
     }
+}
+
+// 给一个对象新增属性时返回的结构类型
+const getObjectPropty = (name) => {
+    return {
+        "type": "Property",
+        "key": {
+            "type": "Identifier",
+            "name": name
+        },
+        "computed": false,
+        "value": {
+            "type": "Identifier",
+            "name": name
+        },
+        "kind": "init",
+        "method": false,
+        "shorthand": true
+    }
+}
+// 将函数名称插入service返回的数据中
+const serviceReturnProp = (tree, subTree) => {
+    let funcs = subTree.body
+    let props = [];
+    funcs.forEach(element => {
+       let name = element.declarations[0].id.name;
+       let struct = getObjectPropty(name);
+       props.push(struct);
+    });
+    return props;
 }
 
 // 组装之前涉及到节点属性需要变更的地方
@@ -67,5 +98,6 @@ const beforeParseHooks = {
 module.exports = {
     getClassParent,
     getserviceInsertFunc,
-    beforeParseHooks
+    beforeParseHooks,
+    serviceReturnProp
 }
