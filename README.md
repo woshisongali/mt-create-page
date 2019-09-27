@@ -6,6 +6,8 @@ to create  template pages
 ### 打开页面地址
 http://127.0.0.1:3000/dist/index.html
 
+### 生成目录变更
+可通过"outFilePath"将文件夹指定到变更目录下
 
 ### 解析问题
 
