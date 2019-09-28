@@ -11,16 +11,15 @@
 <script>
     class myModlue {
         init() {
-            this.selectList = [];
+            this.selectList = [{name: '全部', value: null}];
             this.getSelectList();
         }
         getSelectList() {
             // this.selectList = [];
             return this.service.getSelectList().then(({data: {data, status}}) => {
                 if (status) {
-                    this.selectList = this.buList.concat(data || []);
+                    this.selectList = this.selectList.concat(data || []);
                     this.params.selectVal = this.selectList[0];
-                    console.log('has get the data');
                 }
             });
         }
