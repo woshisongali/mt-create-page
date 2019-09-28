@@ -62,8 +62,7 @@ define([
             this.service.getDataList(params).then(
                 ({ data: { data, status } }) => {
                     if (status) {
-                        let dataList = data.pageContent || [];
-                        this.tableComp.dataList = angular.copy(dataList);
+                        this.dataList = data.pageContent || [];
                         this.pages.pageNo = data.page.currentPageNo;
                         this.pages.totalCount = data.page.totalCount;
                         this.pages.pageSize = data.page.pageSize;

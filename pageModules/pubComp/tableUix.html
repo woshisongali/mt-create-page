@@ -1,0 +1,37 @@
+<uix-datatable  striped status="vm.tableLoader" columns="vm.tableComp.columns" data="vm.tableComp.dataList"></uix-datatable>
+<script>
+        class myModlue {
+            init() {
+                this.spuTypeList = [];
+                this.tableComp = {};
+                this.formTabelData();
+            }
+            // 获取商品类型
+            formTabelData() {
+                const baseColumns = [
+                    { key: 'name', title: '姓名' },
+                    { key: 'age', title: '年龄' },
+                    { key: 'date', title: '日期', filter: 'date:"yyyy-MM-dd HH:mm:ss"' },
+                    { key: 'province', title: '省份' },
+                    { key: 'city', title: '城市' },
+                    { key: 'address', title: '地址' },
+                    { key: 'zip', title: '邮编' }
+                ];
+                let  cols = angular.copy(baseColumns);
+                this.tableComp = {
+                    columns: cols,
+                    dataList: []
+                };
+            }
+        }
+</script>
+
+<script>
+    const getDataList = params => {
+        return service.$http({
+            method: 'get',
+            url: basePath + '/psgs/approval/r/myApplication',
+            params
+        })
+    }
+</script>

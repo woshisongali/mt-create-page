@@ -16,7 +16,7 @@
         }
         getSelectList() {
             // this.selectList = [];
-            return this.server.getSelectList().then(({data: {data, status}}) => {
+            return this.service.getSelectList().then(({data: {data, status}}) => {
                 if (status) {
                     this.selectList = this.buList.concat(data || []);
                     this.params.selectVal = this.selectList[0];
@@ -28,7 +28,7 @@
 </script>
 <script>
     const getSelectList  = params => {
-        return server.$http({
+        return service.$http({
             method: 'get',
             url: basePath + '/oas/self/r/afterSales/customer/info',
             params

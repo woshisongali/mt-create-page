@@ -40,8 +40,7 @@
         "tpl": "./pageModules/wrapperPanel.html",
         "children": [
           {
-            "tpl": "./pageModules/table.html",
-            "type": "table",
+            "tpl": "./pageModules/pubComp/tableUix.html",
             "names": "审批单号,事业部,提交时间,调价类型,审核单状态,审核人,操作"
           },
           {
