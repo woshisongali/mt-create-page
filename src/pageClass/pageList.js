@@ -91,6 +91,8 @@ const createParamsAst = () => {
         params.forEach((param, index) => {
             if (typeof param === 'object') {
                 str +=`${param.name}: this.${param.value}`
+            } else if (param === 'bu') {
+                str += `${param}: {}`
             } else {
                 str += `${param}: null`
             }

@@ -3,6 +3,7 @@ const HTML = require('html-parse-stringify2');
 const operaFs = require('./operaFs');
 const prettier = require('prettier');
 const esprima = require('esprima');
+const estraverse = require('estraverse');
 const escodegen = require('escodegen');
 const {isObject} = require('./util');
 
@@ -135,6 +136,25 @@ const setAttr = (node, key, value) => {
     attrs[key] = value;
 }
 
+const getSubJsStr = (ast, timers) => {
+    let result = null
+    let curTime = 0;
+    if (Array.isArray(ast)) {
+        for (let i = 0, len = ast.length; i < len; i++) {
+            let node = ast[i];
+            if (curTime >= timers) {
+                break;
+            }
+            if (node.name === 'script') {
+                result = node;
+                curTime++;
+            }
+        }
+    }
+    return result;
+}
+
+
 const replaceMap = {
     /**
      * 
@@ -183,8 +203,47 @@ const replaceMap = {
     },
 
     'tableUix': async function replaceElemTableUix (modNode, subNodes) {
-        console.log('the table component')
-        let baseAst = replaceMap['base'](modNode, subNodes);
+        let baseAst = await replaceMap['base'](modNode, subNodes);
+        const creatArr = (arr) => {
+            let str = "const baseColumns = ["
+            arr.forEach((item, index)=> {
+                str += "{key: '" + item.key +"', title: '" + item.title + "' }"
+                if (index < arr.length - 1) {
+                    str += ","
+                }
+            })
+            str += "]; ";
+            // let colsAst = esprima.parseScript(str)
+            return str;
+        }
+        if (modNode.cols) {
+            const cols = modNode.cols.split(/[;；]/);
+            let formatCols = []
+            cols.forEach(item => {
+                item = item.trim();
+                let obj = {};
+                if (item.length > 0) {
+                    let keys = item.split('=');
+                    obj = {
+                        title: keys[0],
+                        key: keys[1] ? keys[1] : null
+                    };
+                    formatCols.push(obj);
+                }
+            })
+            let theCols = creatArr(formatCols)
+            const subMinJsContainer = getSubJsStr(baseAst.tempAst, 1).children[0]
+            let subMinJs = subMinJsContainer.content
+            let startIndex = subMinJs.indexOf('const baseColumns');
+            let endIndex = subMinJs.indexOf('let  cols');
+            if (startIndex > -1 && endIndex > -1) {
+                let newSubMain = subMinJs.substring(0, startIndex)
+                    + theCols
+                    + subMinJs.substring(endIndex);
+                subMinJsContainer.content = newSubMain   
+            }
+        }
+        
         return baseAst;
     },
     'table': async function replaceElemTable(modNode, subNodes) {

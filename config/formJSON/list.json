@@ -1,5 +1,5 @@
 {
-    "tpl": "./pageModules/tpl/list/myTest.html",
+    "tpl": "./pageModules/outerNoTitle.html",
     "out": {
       "origin": "./temples/list/index.js"
     },
@@ -7,47 +7,55 @@
     "fileName": "myPageListTest",
     "children": [
       {
-        "tpl": "./pageModules/wrapperPanel.html",
-        "children": [
-          {
-            "tpl": "./pageModules/form.html",
-            "children": [
-              {
-                "tpl": "./pageModules/pubComp/saleArea.html"
-              },
-              {
-                "tpl": "./pageModules/inputs/input.html",
-                "paramNames": "csuCode",
-                "title": "销售单元编码"
-              },
-              {
-                "tpl": "./pageModules/inputs/datepickerGroup.html",
-                "paramNames": ["startTime", "endTime"]
-              },
-              {
-                "tpl": "./pageModules/inputs/select.html",
-                "selectKey": "adjType",
-                "title": "调价类型"
-              }
-            ]
-          },
-          {
-            "tpl": "./pageModules/searchBtns.html"
-          }
-        ]
+          "tpl": "./pageModules/pubComp/titleBu.html"
       },
       {
-        "tpl": "./pageModules/wrapperPanel.html",
-        "children": [
-          {
-            "tpl": "./pageModules/pubComp/tableUix.html",
-            "type": "tableUix",
-            "names": "审批单号,事业部,提交时间,调价类型,审核单状态,审核人,操作"
-          },
-          {
-            "tpl": "./pageModules/page.html"
-          }
-        ]
+          "tpl": "./pageModules/wrapperOut.html",
+          "children": [
+            {
+              "tpl": "./pageModules/wrapperPanel.html",
+              "children": [
+                {
+                  "tpl": "./pageModules/form.html",
+                  "children": [
+                    {
+                      "tpl": "./pageModules/pubComp/saleArea.html"
+                    },
+                    {
+                      "tpl": "./pageModules/inputs/input.html",
+                      "paramNames": "csuCode",
+                      "title": "销售单元编码"
+                    },
+                    {
+                      "tpl": "./pageModules/inputs/datepickerGroup.html",
+                      "paramNames": ["startTime", "endTime"]
+                    },
+                    {
+                      "tpl": "./pageModules/inputs/select.html",
+                      "selectKey": "adjType",
+                      "title": "调价类型"
+                    }
+                  ]
+                },
+                {
+                  "tpl": "./pageModules/searchBtns.html"
+                }
+              ]
+            },
+            {
+              "tpl": "./pageModules/wrapperPanel.html",
+              "children": [
+                {
+                  "type": "tableUix",
+                  "tpl": "./pageModules/pubComp/tableUix.html",
+                  "cols": "操作时间=ctime;操作人=operatorName;状态=；结果=；操作"
+                },
+                {
+                  "tpl": "./pageModules/page.html"
+                }
+              ]
+            }
+          ]
       }
     ]
-  }
+}

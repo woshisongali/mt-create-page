@@ -2,7 +2,6 @@
 <script>
         class myModlue {
             init() {
-                this.spuTypeList = [];
                 this.tableComp = {};
                 this.formTabelData();
             }
@@ -30,7 +29,7 @@
     const getDataList = params => {
         return service.$http({
             method: 'get',
-            url: basePath + '/psgs/approval/r/myApplication',
+            url: basePath + '/psgs/price/batch/r/pageListOpLog',
             params
         })
     }

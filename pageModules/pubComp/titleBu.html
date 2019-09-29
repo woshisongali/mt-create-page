@@ -1,12 +1,14 @@
 <div class="bg-light lter b-b wrapper-md module-title">
-    <h1 class="page-title">调价申请</h1>
-    <uix-bu-city-selector bu="vm.currentBu" hide-sub="true" on-bu-change="vm.changeBu"/>
+    <h1 class="page-title">XXXXXXX</h1>
+    <uix-switch-city ng-model="vm.params.bu"></uix-switch-city>
 </div>
 <script>
         class myModlue {
-            // value值改变时钩子函数
-            changeBu(info) {
-                console.log(info);
+            init() {
+                this.$scope.$watch('vm.params.bu', (bu, old) => {
+                    this.getDataList(1);
+                    console.log(' TODO maybe you should remove anthoer getDataList tragger')
+                });
             }
         }
 </script>

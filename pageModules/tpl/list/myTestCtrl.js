@@ -9,7 +9,8 @@ define([
         'myTestService',
         'Page',
         '$uixNotify',
-        '$stateParams'
+        '$stateParams',
+        '$scope'
     ];
 
     class myTestCtrl {
@@ -26,19 +27,20 @@ define([
                 myTestService,
                 Page,
                 $uixNotify,
-                $stateParams
+                $stateParams,
+                $scope
             ] = arguments;
             vm.buServices = buServices;
             vm.goodsServices = goodsServices;
             vm.service = myTestService;
             vm.$uixNotify = $uixNotify;
             vm.$stateParams = $stateParams;
+            vm.$scope = $scope;
             Page.setTitle('XXXX-XXXX');
             vm.init();
         }
 
         init() {
-            console.log('ya to start');
             this.pages = {
                 pageSize: 20,
                 pageNo: 1
@@ -79,6 +81,7 @@ define([
         }
 
         updateQueryParams() {
+            console.log('you can change here about url Params')
             this.submitParams = Object.assign({}, this.pages, this.params);
         }
     }
