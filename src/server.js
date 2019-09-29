@@ -31,12 +31,13 @@ const  serverStart = () => {
 
     router.post('/pageJson', async function (ctx,next) {
         let dataConfig = ctx.request.body.configData
-        dataConfig = JSON.parse(dataConfig)
-        let pageResult = await createPage(dataConfig);
-
         let result = {
             success: true
         };
+        dataConfig = JSON.parse(dataConfig)
+        let pageResult = await createPage(dataConfig);
+
+        
         ctx.body = result;
     })
 

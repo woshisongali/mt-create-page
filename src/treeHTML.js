@@ -182,6 +182,11 @@ const replaceMap = {
         }
     },
 
+    'tableUix': async function replaceElemTableUix (modNode, subNodes) {
+        console.log('the table component')
+        let baseAst = replaceMap['base'](modNode, subNodes);
+        return baseAst;
+    },
     'table': async function replaceElemTable(modNode, subNodes) {
         let tempAst = modNode.nodeAst;
         let sepaAst = null;

@@ -255,6 +255,9 @@ class pageList {
 
         if (queryNode) {
             let paramAst = createParamsAst();
+            if (!paramAst) {
+                return;
+            }
             let newBody = paramAst.body[0].body.body;
             queryNode.value.body.body = newBody;
         }
