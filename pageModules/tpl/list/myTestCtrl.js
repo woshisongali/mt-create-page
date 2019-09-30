@@ -46,7 +46,6 @@ define([
                 pageNo: 1
             };
             this.submitParams = {};
-            this.dataList = [];
             this.initQuery();
             this.getDataList(1);
         }
@@ -69,7 +68,7 @@ define([
                         this.pages.pageNo = data.page.currentPageNo;
                         this.pages.totalCount = data.page.totalCount;
                         this.pages.pageSize = data.page.pageSize;
-                        this.tableLoader =this.dataList.length > 0 ? 0 : 2;
+                        this.tableLoader = dataList.length > 0 ? 0 : 2;
                     } else {
                         this.tableLoader = -1;
                     }
