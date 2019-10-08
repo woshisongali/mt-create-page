@@ -5,7 +5,8 @@ define([
 
     const $inject = [
         '$uixNotify',
-        'myTestService'
+        'myTestService',
+        '$scope'
     ];
 
     class myTestCtrl {
@@ -17,12 +18,17 @@ define([
         constructor() {
             let [
                 $uixNotify,
-                myTestservice
+                myTestservice,
+                $scope
             ] = arguments;
             this.$uixNotify = $uixNotify;
             this.service = myTestservice;
+            this.$scope = $scope;
+            this.init();
         }
+        init() {
 
+        }
         getDetail() {
             this.tableLoader = 1;
             this.service.getDetail().then(({

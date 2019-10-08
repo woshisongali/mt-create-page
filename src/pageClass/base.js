@@ -58,7 +58,7 @@ async function appendToMain(JSstrs, mainJsTree) {
                 }
             })
             if (initNode) {
-                pageData.setInitFuncs(initNode);
+                this.pageData.setInitFuncs(initNode);
             }
             const jsClass = treeJS.getClass(newTree, 'myModlue');
             mainClass.body.push(...jsClass.body);
@@ -76,8 +76,8 @@ const setTitle = (node, titlestr) => {
     }
 }
 
-const createParamsAst = () => {
-    let params = pageData.params;
+const createParamsAst = function () {
+    let params = this.pageData.params;
     let str = '';
     if (params.length > 0) {
         str = `function setParams() {
