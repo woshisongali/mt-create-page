@@ -30,7 +30,7 @@ define([
 
         }
         getDetail() {
-            this.tableLoader = 1;
+            this.loader = 1;
             this.service.getDetail().then(({
                 data: {data, status}
             }) => {

@@ -1,6 +1,6 @@
 const pageList = require('./pageClass/pageList');
 const pageModal = require('./pageClass/pageModal');
-const pageDetail = require('./pageClass/pageDetail');
+const pageDetail = require('./pageClass/pageDetail_old');
 
 async function createPage(config) {
     let page = null

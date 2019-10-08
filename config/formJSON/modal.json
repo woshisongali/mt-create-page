@@ -1,0 +1,12 @@
+
+{
+    "tpl": "./pageModules/tpl/modalTpl/myTest.html",
+    "pageType": "modal",
+    "outFilePath": "./build/",
+    "fileName": "addCustoms",
+    "children": [
+      {
+        "tpl": "./pageModules/modalTest.html"
+      }
+    ]
+  }

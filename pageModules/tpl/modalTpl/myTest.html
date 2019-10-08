@@ -1,9 +1,15 @@
 
-<div>
-    <div class="modal-header">
-        <h3 class="modal-title">失败原因</h3>
+<div class="modal-header">
+        <h3 class="modal-title">XXXXXXX</h3>
     </div>
-    <div uix-table-loader="vm.tableLoader" loader-height="300">
+    <div class="modal-body">
         <replaceTag>不要忘记替换哟lalalala</replaceTag>
     </div>
-</div>
+    <div class="modal-footer">
+        <div class="text-center">    
+            <button class="btn-sm btn btn-primary" type="submit" ng-click="ok()"
+                    ng-disabled="form.$invalid || submitFlag" uix-btn-loader="submitFlag">确定
+            </button>
+            <button class="btn btn-sm btn-default" type="button" ng-click="cancel()">取消</button>
+        </div>
+    </div>

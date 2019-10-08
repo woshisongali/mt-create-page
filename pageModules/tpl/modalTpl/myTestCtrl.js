@@ -27,7 +27,7 @@ define([
         }
 
         getDetail() {
-            this.tableLoader = 1;
+            this.loader = 1;
             this.parent.service.getDetail().then(({
                 data: {data, status}
             }) => {
