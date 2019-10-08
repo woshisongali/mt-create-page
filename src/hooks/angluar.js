@@ -79,8 +79,8 @@ const SELECTKEYS = [
     }
 ];
 const beforeParseHooks = {
-    'select': (str, key, auto) => {
-        let uuid = pageData.getSelectUUid();
+    'select': function (str, key, auto) {
+        let uuid = this.pageData.getSelectUUid();
         SELECTKEYS.forEach(element => {
             let reg = new RegExp(element.key, 'g');
             let curKey = element.before ? element.before + firstCharCase(key) : key;

@@ -1,6 +1,9 @@
-const pageData = {
-    defaultOutPath: `./build/`,
-    params: [],
+
+class pageData {
+    constructor (opts) {
+        this.push = [];
+        this.init(opts)
+    }
     init(opts) {
         this.params = [];
         this.out = null;
@@ -11,17 +14,17 @@ const pageData = {
         }
         this.initSelect();
         this.initFuncs = [];
-    },
+    }
     setOutData(out) {
         this.out = out;
-    },
+    }
 
     initSelect() {
         this.selectUUid = 0;
-    },
+    }
     getSelectUUid () {
         return this.selectUUid++;
-    },
+    }
     setParams(data) {
         let isObj = typeof data === 'object';
         if (!isObj && ~data.indexOf('pageNo')) {
@@ -32,13 +35,15 @@ const pageData = {
         } else {
             this.params.push(data);
         }
-    },
+    }
     setInitFuncs(func) {
         this.initFuncs.push(func)
-    },
+    }
     getInitFuncs() {
         return this.initFuncs;
     }
 };
+
+pageData.defaultOutPath = `./build/`;
 
 module.exports = pageData;

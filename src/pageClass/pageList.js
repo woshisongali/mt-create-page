@@ -64,7 +64,7 @@ async function appendToMain(JSstrs, mainJsTree) {
                 }
             })
             if (initNode) {
-                pageData.setInitFuncs(initNode);
+                this.pageData.setInitFuncs(initNode);
             }
             const jsClass = treeJS.getClass(newTree, 'myModlue');
             mainClass.body.push(...jsClass.body);
@@ -82,8 +82,8 @@ const setTitle = (node, titlestr) => {
     }
 }
 
-const createParamsAst = () => {
-    let params = pageData.params;
+const createParamsAst = function() {
+    let params = this.pageData.params;
     let str = '';
     if (params.length > 0) {
         str = `function setParams() {
@@ -121,7 +121,7 @@ class pageList {
         if (~str.indexOf('auto-create="select"')) {
             let autoCreate = selectKey ? false : true;
             let curKey = selectKey ? selectKey : 'select';
-            str = beforeParseHooks['select'](str, curKey, autoCreate);
+            str = beforeParseHooks['select'].call(this, str, curKey, autoCreate);
         }
         return str;
     }
@@ -167,23 +167,9 @@ class pageList {
             }
         }
     }
-       /**
-     * 最后对js html中的文件进行处理，
-     * 包括语句替换， 单词替换
+    /**
      */
     async hasCreated(filepaths) {
-        return;
-        if (pageData.params.length <= 0) {
-            return;
-        }
-        let initParamStr = 'this.params={';
-        pageData.params.forEach(param => {
-            let name = param.split('.');
-            initParamStr += `${name[name.length - 1]}: null,`;
-        });
-        initParamStr = initParamStr.substring(0, initParamStr.length - 1);
-        initParamStr += '};';
-        await operaFs.replaceWordNew(filepaths.ctrl, 'this.params = {};', initParamStr);
     }
     /**
      *
@@ -218,15 +204,15 @@ class pageList {
                     name: modelParam,
                     value: value
                 }
-                pageData.setParams(paramObj);
+                this.pageData.setParams(paramObj);
             } else {
-                pageData.setParams(modelParam);
+                this.pageData.setParams(modelParam);
             }
         }
     }
 
     afterJSAst(ast) {
-        let funcs = pageData.getInitFuncs();
+        let funcs = this.pageData.getInitFuncs();
         let initNode = null;
         let newBody = []
         estraverse.traverse(ast, {
@@ -256,7 +242,7 @@ class pageList {
         });
 
         if (queryNode) {
-            let paramAst = createParamsAst();
+            let paramAst = createParamsAst.call(this);
             if (!paramAst) {
                 return;
             }
@@ -291,7 +277,7 @@ class pageList {
         let astResult = await treeHTML.replaceMap[type](node, children);
         let JSstr = astResult.astJs.length ? getJSStr(astResult.astJs) : null;
         if (JSstr) {
-            await appendToMain(JSstr, mainJsTree);
+            await appendToMain.call(this, JSstr, mainJsTree);
         }
 
         let serviceStr = astResult.astJs.length ? getserviceJSStr(astResult.astJs) : null;
@@ -317,7 +303,8 @@ class pageList {
             return;
         }
         let bodyContent = 'hahah';
-        pageData.init({ fileName: modConfig.fileName });
+        this.pageData = new pageData({ fileName: modConfig.fileName });
+        // pageData.init({ fileName: modConfig.fileName });
 
         let mainJSstr = await operaFs.readFile('./pageModules/tpl/list/myTestCtrl.js');
         let mainJsTree = esprima.parseScript(mainJSstr);
@@ -329,7 +316,7 @@ class pageList {
         bodyContent = 'has ok';
         this.afterHTMLAst(astResult.tempAst);
 
-        let fileName = pageData.fileName;
+        let fileName = this.pageData.fileName;
         this.afterJSAst(mainJsTree);
         const code = escodegen.generate(mainJsTree);
         await operaFs.writeFiel(`./temples/list/${fileName}Ctrl.js`, code);
