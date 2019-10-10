@@ -37,6 +37,7 @@
   "dependencies": {
     "escodegen": "^1.11.1",
     "esprima": "^4.0.1",
+    "esprima-fb": "^15001.1001.0-dev-harmony-fb",
     "html-parse-stringify2": "^2.0.1",
     "koa-bodyparser": "^4.2.1",
     "koa-static": "^5.0.0",

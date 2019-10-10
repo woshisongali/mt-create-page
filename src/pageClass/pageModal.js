@@ -24,7 +24,8 @@ class pageModal extends pageParent {
             return;
         }
         let bodyContent = 'hahah';
-        this.pageData = new pageData({ fileName: modConfig.fileName });
+        this.pageData = new pageData({ fileName: modConfig.fileName, jsonConfig: modConfig });
+
         let fileName = this.pageData.fileName;
 
         const sourceFiles = pageModal.CONFIG_PATH.sourFiles;

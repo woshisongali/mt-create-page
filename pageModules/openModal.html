@@ -1,0 +1,12 @@
+<script>
+    class myModlue {
+        openTestModal() {
+            this.$uixModal.open({
+                ...testModalCtrl,
+                resolve: {
+                    parent: () => this
+                }
+            });
+        }
+    }
+</script>

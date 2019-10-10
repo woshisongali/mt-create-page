@@ -14,6 +14,8 @@ class pageData {
         }
         this.initSelect();
         this.initFuncs = [];
+        this.defineNode = null;
+        this.jsonConfig = opts.jsonConfig || null;
     }
     setOutData(out) {
         this.out = out;
@@ -41,6 +43,13 @@ class pageData {
     }
     getInitFuncs() {
         return this.initFuncs;
+    }
+
+    setDefineNode (node) {
+        this.defineNode = node;
+    }
+    getDefineNode () {
+        return this.defineNode;
     }
 };
 

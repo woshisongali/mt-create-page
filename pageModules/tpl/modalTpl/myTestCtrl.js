@@ -23,7 +23,6 @@ define([
             this.parent = parent;
             this.$uixNotify = $uixNotify;
             this.$uixModalInstance = $uixModalInstance;
-            this.service = myTestservice;
         }
 
         getDetail() {

@@ -145,10 +145,46 @@ const getReturnStatement = (serTree) => {
     }
     return returnStatement;
 }
+
+// 获取define  functionExpression节点， 向其中注入modal对象
+const getDefineFunction = (ast) => {
+    let defineNode = null;
+    let functionExpression = {};
+    estraverse.traverse(ast, {
+        enter: function (node, parent) {
+            if (node.callee && node.callee.type === 'Identifier'
+            && node.callee.name === 'define') {
+                defineNode = node;
+                return estraverse.VisitorOption.Skip;
+            }
+        }
+    });
+    if (defineNode) {
+        // functionExpression.elements = defineNode.arguments[0].elements;
+        // functionExpression.params = defineNode.arguments[1].params;
+        functionExpression.arguments = defineNode.arguments;
+    }
+    return functionExpression;
+}
+
+const insertDefine = (ast, modalName) => {
+    ast.arguments[0].elements.splice(1, 0, {
+        "type": `Literal`,
+        "value": `./tpl/${modalName}/${modalName}Ctrl`,
+        "raw": `'./tpl/${modalName}/${modalName}Ctrl'`
+    });
+    ast.arguments[1].params.splice(1, 0, {
+        "type": `Identifier`,
+        "name": `${modalName}Ctrl`
+    });
+}
+
 module.exports = {
     getNode,
     getClass,
     getFunction,
     getObjectPropty,
-    getReturnStatement
+    getReturnStatement,
+    getDefineFunction,
+    insertDefine
 }

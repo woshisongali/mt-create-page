@@ -7,9 +7,9 @@
     </div>
     <div class="modal-footer">
         <div class="text-center">    
-            <button class="btn-sm btn btn-primary" type="submit" ng-click="ok()"
-                    ng-disabled="form.$invalid || submitFlag" uix-btn-loader="submitFlag">确定
+            <button class="btn-sm btn btn-primary" type="submit" ng-click="vm.ok()"
+                    ng-disabled="vm.submitFlag" uix-btn-loader="vm.submitFlag">确定
             </button>
-            <button class="btn btn-sm btn-default" type="button" ng-click="cancel()">取消</button>
+            <button class="btn btn-sm btn-default" type="button" ng-click="vm.cancel()">取消</button>
         </div>
     </div>

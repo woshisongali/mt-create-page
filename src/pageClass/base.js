@@ -44,6 +44,9 @@ function testGetFunction(JSTree) {
 }
 
 async function appendToMain(JSstrs, mainJsTree) {
+    if (!JSstrs || !Array.isArray(JSstrs) || JSstrs.length < 1) {
+        throw 'the JSstr show be Array'
+    }
     const mainClass = treeJS.getClass(mainJsTree, 'myTestCtrl', true);
     JSstrs.forEach(JSstr => {
         if (JSstr) {

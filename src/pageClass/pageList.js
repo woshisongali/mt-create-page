@@ -12,6 +12,8 @@ const treeJS = require('../treeJS');
 const pageData = require('../pageData');
 const { getserviceInsertFunc, beforeParseHooks, serviceReturnProp } = require('../hooks/angluar.js');
 const pageParent = require('./pageParent');
+const {SPREADSYMBOL} = require('../config')
+
 
 
 const optEsp = {
@@ -81,7 +83,7 @@ class pageList extends pageParent{
             return;
         }
         let bodyContent = 'hahah';
-        this.pageData = new pageData({ fileName: modConfig.fileName });
+        this.pageData = new pageData({ fileName: modConfig.fileName, jsonConfig: modConfig });
         // pageData.init({ fileName: modConfig.fileName });
 
         const sourceFiles = pageList.CONFIG_PATH.sourFiles;
@@ -98,6 +100,7 @@ class pageList extends pageParent{
         let mainJsTree = esprima.parseScript(mainJSstr);
         let serviceJStr = await operaFs.readFile(sourceFiles.service);
         let serviceJSTree = esprima.parseScript(serviceJStr);
+        await this.preJSAst(mainJsTree);
         // let mainJSstr = await operaFs.readFile('./test/angularInit.js');
         // await appendToMain([JSstr], mainJsTree);
         let astResult = await this.recurAppend(modConfig, mainJsTree, serviceJSTree);
@@ -131,6 +134,7 @@ class pageList extends pageParent{
                 if (filepaths.hasOwnProperty(key)) {
                     gulp.src(filepaths[key])
                         .pipe(gulpReplace('myTest', fileName))
+                        .pipe(gulpReplace(SPREADSYMBOL, '...'))
                         .pipe(gulp.dest(`${outFilePath}${fileName}/`));
                 }
             }

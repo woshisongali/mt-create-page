@@ -13,6 +13,7 @@ const treeHTML = require('../treeHTML');
 const treeJS = require('../treeJS');
 const pageData = require('../pageData');
 const { getserviceInsertFunc, beforeParseHooks, serviceReturnProp } = require('../hooks/angluar.js');
+const {SPREADSYMBOL} = require('../config')
 const {
     getJSStr,
     getServerJSStr,
@@ -21,7 +22,7 @@ const {
     setTitle
 } = require('./base.js')
 
-
+const MODALCODE = `./pageModules/openModal.html`
 class pageParent {
     constructor(config) {
         this.configNode = null;
@@ -98,6 +99,31 @@ class pageParent {
      */
      afterHTMLAst(node) {
         
+    }
+
+    // 是否有modal弹框如果有的话需要进一步处理
+    async preJSAst (ast) {
+        let defineNode = treeJS.getDefineFunction(ast);
+        let modalCode = null;
+        let modalJs = null;
+        let jsStrs = [];
+        let modalJsons = this.pageData.jsonConfig.modals;
+        if (defineNode && modalJsons) {
+            modalCode = await operaFs.readFile(MODALCODE);
+            modalCode = HTML.parse(modalCode);
+            modalJs = modalCode[0].children[0].content;
+            modalJs = modalJs.replace(/\.\.\./g, SPREADSYMBOL);
+            modalJsons.forEach(element => {
+                let newStr = modalJs;
+                // let reg = new RegExp(element.name, g);
+                newStr = newStr.replace(/testModal/, element.name)
+                .replace(/TestModal/, element.name.charAt(0).toUpperCase() + element.name.slice(1));
+                jsStrs.push(newStr);
+                treeJS.insertDefine(defineNode, element.name);
+            })
+            // console.log(escodegen.generate(ast))
+        }
+        await appendToMain.call(this, jsStrs, ast);
     }
 
     afterJSAst(ast) {

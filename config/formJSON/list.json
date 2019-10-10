@@ -5,6 +5,16 @@
     },
     "outFilePath": "./build/",
     "fileName": "myPageListTest",
+    "modals": [
+      {
+        "name": "testModal",
+        "children": [
+          {
+            "tpl": "./pageModules/modalTest.html"
+          }
+        ]
+      }
+    ],
     "children": [
       {
           "tpl": "./pageModules/pubComp/titleBu.html"

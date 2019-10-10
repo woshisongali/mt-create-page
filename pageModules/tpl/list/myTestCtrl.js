@@ -9,6 +9,7 @@ define([
         'myTestService',
         'Page',
         '$uixNotify',
+        '$uixModal',
         '$stateParams',
         '$scope'
     ];
@@ -27,6 +28,7 @@ define([
                 myTestService,
                 Page,
                 $uixNotify,
+                $uixModal,
                 $stateParams,
                 $scope
             ] = arguments;
@@ -34,6 +36,7 @@ define([
             vm.goodsServices = goodsServices;
             vm.service = myTestService;
             vm.$uixNotify = $uixNotify;
+            vm.$uixModal = $uixModal;
             vm.$stateParams = $stateParams;
             vm.$scope = $scope;
             Page.setTitle('XXXX-XXXX');
