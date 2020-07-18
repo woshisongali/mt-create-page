@@ -59,7 +59,7 @@
     "@babel/runtime": "^7.4.2",
     "@vue/babel-helper-vue-jsx-merge-props": "^1.0.0",
     "axios": "^0.18.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "vee-validate": "^2.2.0",
