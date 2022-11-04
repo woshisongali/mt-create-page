@@ -27,7 +27,7 @@
     "commander": "^2.20.0",
     "estraverse": "^4.2.0",
     "file-system": "^2.2.2",
-    "gulp": "^3.0.0",
+    "gulp": "^3.9.1",
     "gulp-replace": "^1.0.0",
     "gulp-util": "^3.0.8",
     "koa": "^2.7.0",
